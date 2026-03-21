@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://content.trymentel.com/sitemap.xml
