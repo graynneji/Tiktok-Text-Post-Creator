@@ -1,0 +1,3247 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mentel Post Generator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      [data-theme="dark"] {
+        --accent: #2fbf71;
+        --accent-dim: rgba(47, 191, 113, 0.12);
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --surface2: #1c1c1c;
+        --border: #252525;
+        --text: #f0f0f0;
+        --text2: #5a5a5a;
+        --text3: #888;
+        --input-bg: #111;
+        --shadow: rgba(0, 0, 0, 0.8);
+        --canvas-bg: #080808;
+        --swatch-ring: #fff;
+        --danger: #e63946;
+      }
+      [data-theme="light"] {
+        --accent: #18a350;
+        --accent-dim: rgba(24, 163, 80, 0.1);
+        --bg: #f0f0ee;
+        --surface: #fff;
+        --surface2: #f5f5f3;
+        --border: #e2e2df;
+        --text: #111;
+        --text2: #aaa;
+        --text3: #777;
+        --input-bg: #fafaf8;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --canvas-bg: #ddddd9;
+        --swatch-ring: #111;
+        --danger: #e63946;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      /* TOPBAR */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 16px;
+        height: 42px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        flex-shrink: 0;
+        z-index: 10;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex-shrink: 0;
+      }
+      .topbar-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--text2);
+        flex: 1;
+      }
+      .theme-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 5px 12px;
+        cursor: pointer;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--text3);
+        text-transform: uppercase;
+        transition: all 0.2s;
+      }
+      .theme-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* LAYOUT */
+      .main {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        height: calc(100vh - 42px);
+      }
+
+      /* PREVIEW */
+      .preview-pane {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 12px 8px;
+        gap: 10px;
+        background: var(--canvas-bg);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .size-tabs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .size-tab {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text2);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .size-tab.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .slide-nav {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+      .slide-nav.on {
+        display: flex;
+      }
+      .nav-btn {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text3);
+        font-size: 13px;
+        padding: 4px 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+        line-height: 1;
+      }
+      .nav-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .slide-counter {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text3);
+        min-width: 44px;
+        text-align: center;
+      }
+      .canvas-wrap {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+      #preview-canvas {
+        border-radius: 6px;
+        display: block;
+        box-shadow: 0 8px 40px var(--shadow);
+        cursor: default;
+        user-select: none;
+        max-width: 100%;
+        max-height: 100%;
+      }
+      #preview-canvas.draggable {
+        cursor: grab;
+      }
+      #preview-canvas.dragging {
+        cursor: grabbing;
+      }
+      .preview-note {
+        font-size: 9px;
+        color: var(--text2);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+
+      /* CONTROLS */
+      .controls-pane {
+        width: 300px;
+        flex-shrink: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-left: 1px solid var(--border);
+        background: var(--surface);
+        display: flex;
+        flex-direction: column;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+      .controls-pane::-webkit-scrollbar {
+        width: 4px;
+      }
+      .controls-pane::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      /* SECTION */
+      .panel-section {
+        border-bottom: 1px solid var(--border);
+      }
+      .sec-hdr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 14px;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      .sec-hdr:hover {
+        background: var(--surface2);
+      }
+      .sec-title {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--text3);
+      }
+      .sec-arrow {
+        font-size: 8px;
+        color: var(--text2);
+        transition: transform 0.2s;
+      }
+      .panel-section.collapsed .sec-arrow {
+        transform: rotate(-90deg);
+      }
+      .sec-body {
+        padding: 4px 14px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .panel-section.collapsed .sec-body {
+        display: none;
+      }
+
+      /* FIELD */
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .field label {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text2);
+        display: block;
+      }
+
+      /* INPUTS */
+      textarea,
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        font-size: 12px;
+        padding: 8px 10px;
+        outline: none;
+        transition: border-color 0.2s;
+        resize: none;
+        line-height: 1.5;
+      }
+      textarea {
+        min-height: 60px;
+        resize: vertical;
+      }
+      textarea:focus,
+      input[type="text"]:focus,
+      input[type="number"]:focus {
+        border-color: var(--accent);
+      }
+      input[type="color"] {
+        width: 36px;
+        height: 32px;
+        padding: 2px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: var(--input-bg);
+        cursor: pointer;
+        outline: none;
+      }
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+        border-radius: 5px;
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 5px;
+      }
+
+      /* GRIDS */
+      .g2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .g3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 5px;
+      }
+
+      /* RANGE */
+      .range-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .range-val {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--accent);
+        min-width: 32px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      input[type="range"] {
+        flex: 1;
+        -webkit-appearance: none;
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: 2px solid var(--surface);
+      }
+
+      /* TOGGLE BUTTONS */
+      .btn-row {
+        display: flex;
+        gap: 5px;
+      }
+      .tbtn {
+        flex: 1;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text3);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 7px 4px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        letter-spacing: 0.3px;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .tbtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .tbtn.on {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* UPLOAD */
+      .upload-zone {
+        border: 1px dashed var(--border);
+        border-radius: 7px;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        position: relative;
+      }
+      .upload-zone:hover {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .upload-zone input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      }
+      .upload-zone-text {
+        font-size: 10px;
+        color: var(--text2);
+        line-height: 1.6;
+      }
+
+      /* SWATCHES */
+      .swatches {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition:
+          transform 0.15s,
+          border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .swatch:hover {
+        transform: scale(1.18);
+      }
+      .swatch.on {
+        border-color: var(--swatch-ring);
+      }
+
+      /* TEXT COLOR SWATCHES */
+      .txt-color-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .txt-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition:
+          transform 0.15s,
+          border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .txt-swatch:hover {
+        transform: scale(1.15);
+      }
+      .txt-swatch.on {
+        border-color: var(--accent);
+      }
+
+      /* EXPORT GRID */
+      .exp-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .exp-item {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .exp-item:hover {
+        border-color: var(--accent);
+      }
+      .exp-item.on {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .exp-name {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .exp-size {
+        font-size: 8px;
+        color: var(--text2);
+        margin-top: 1px;
+      }
+      .exp-ratio {
+        font-size: 8px;
+        color: var(--accent);
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      /* BUTTONS */
+      .btn-primary {
+        background: var(--accent);
+        border: none;
+        border-radius: 7px;
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-weight: 800;
+        font-size: 11px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 12px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        width: 100%;
+      }
+      [data-theme="light"] .btn-primary {
+        color: #000;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+      .btn-primary:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text2);
+        font-size: 10px;
+        font-weight: 600;
+        padding: 7px 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+      }
+      .btn-ghost:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      .btn-ghost-add {
+        background: transparent;
+        border: 1px dashed var(--border);
+        border-radius: 7px;
+        color: var(--text2);
+        font-size: 10px;
+        font-weight: 600;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        text-align: center;
+      }
+      .btn-ghost-add:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-secondary {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        font-size: 10px;
+        padding: 9px 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .btn-secondary:hover {
+        border-color: var(--accent);
+      }
+
+      /* PROGRESS */
+      .prog-wrap {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+        display: none;
+      }
+      .prog-fill {
+        height: 100%;
+        background: var(--accent);
+        width: 0%;
+        transition: width 0.4s;
+      }
+      .status-text {
+        font-size: 9px;
+        color: var(--text2);
+        text-align: center;
+        min-height: 14px;
+        line-height: 1.5;
+      }
+
+      /* HELPERS */
+      .hint {
+        font-size: 10px;
+        color: var(--text2);
+        line-height: 1.55;
+        padding: 7px 9px;
+        background: var(--surface2);
+        border-radius: 6px;
+        border-left: 2px solid var(--border);
+      }
+      .accent-note {
+        font-size: 10px;
+        color: var(--accent);
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      /* HANDLE */
+      .handle-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .handle-prefix {
+        position: absolute;
+        left: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .handle-wrap input {
+        padding-left: 22px;
+      }
+
+      /* SLIDE LIST */
+      .slide-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .slide-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 7px 10px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .slide-row:hover {
+        border-color: var(--text2);
+      }
+      .slide-row.on {
+        border-color: var(--accent);
+      }
+      .slide-num {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--accent);
+        min-width: 16px;
+        flex-shrink: 0;
+      }
+      .slide-mini {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        background: var(--border);
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .slide-mini canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .slide-txt {
+        flex: 1;
+        font-size: 10px;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .slide-del {
+        font-size: 11px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 3px 5px;
+        border-radius: 4px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+      .slide-del:hover {
+        color: var(--danger);
+      }
+
+      /* CTA TYPE */
+      .cta-type-wrap {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .cta-tbtn {
+        flex: 1;
+        min-width: 48px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text3);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 7px 4px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        line-height: 1.35;
+      }
+      .cta-tbtn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .cta-tbtn.on {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* PLATFORM */
+      .plat-wrap {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .plat-btn {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text3);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 6px 9px;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .plat-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .plat-btn.on {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* PRESET LIST */
+      .preset-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .preset-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .preset-item:hover {
+        border-color: var(--accent);
+      }
+      .preset-item-name {
+        flex: 1;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .preset-item-date {
+        font-size: 9px;
+        color: var(--text2);
+      }
+      .preset-item-del {
+        font-size: 11px;
+        color: var(--text2);
+        cursor: pointer;
+        padding: 3px 5px;
+        border-radius: 4px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+      .preset-item-del:hover {
+        color: var(--danger);
+      }
+
+      /* CAPTION BOX */
+      .caption-box {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 10px;
+        font-size: 11px;
+        color: var(--text);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        max-height: 160px;
+        overflow-y: auto;
+        word-break: break-word;
+      }
+      .caption-actions {
+        display: flex;
+        gap: 6px;
+      }
+      .caption-btn {
+        flex: 1;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+      }
+      .caption-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .caption-btn.copied {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* CUSTOM SIZE */
+      .custom-size-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .custom-size-row input {
+        flex: 1;
+        text-align: center;
+      }
+      .custom-size-sep {
+        font-size: 14px;
+        color: var(--text2);
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      /* BG TYPE */
+      .bg-preview {
+        width: 100%;
+        height: 48px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        margin-top: 2px;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          overflow: auto;
+        }
+        .main {
+          flex-direction: column;
+          height: auto;
+          overflow: visible;
+        }
+        .preview-pane {
+          height: 80vw;
+          min-height: 300px;
+          flex-shrink: 0;
+        }
+        .controls-pane {
+          width: 100%;
+          border-left: none;
+          border-top: 1px solid var(--border);
+          overflow-y: visible;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="dot"></div>
+      <span class="topbar-title">Mentel · Post Generator</span>
+      <div class="theme-btn" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span><span id="theme-lbl">Dark</span>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- PREVIEW -->
+      <div class="preview-pane">
+        <div class="size-tabs">
+          <div
+            class="size-tab active"
+            onclick="switchPreview('tt-portrait', this)"
+          >
+            TikTok Normal
+          </div>
+          <div class="size-tab" onclick="switchPreview('tt-full', this)">
+            TikTok Full
+          </div>
+          <div class="size-tab" onclick="switchPreview('ig-story', this)">
+            IG Story
+          </div>
+          <div class="size-tab" onclick="switchPreview('ig-square', this)">
+            IG Square
+          </div>
+          <div class="size-tab" onclick="switchPreview('ig-portrait', this)">
+            IG Portrait
+          </div>
+          <div
+            class="size-tab"
+            id="tab-custom"
+            onclick="switchPreview('custom', this)"
+            style="display: none"
+          >
+            Custom
+          </div>
+        </div>
+        <div class="slide-nav" id="slide-nav">
+          <button class="nav-btn" id="nav-prev" onclick="navSlide(-1)">
+            ←
+          </button>
+          <span class="slide-counter" id="slide-counter">1 / 1</span>
+          <button class="nav-btn" id="nav-next" onclick="navSlide(1)">→</button>
+        </div>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas id="preview-canvas"></canvas>
+        </div>
+        <div class="preview-note" id="preview-note">
+          1080 × 1350 · Live Preview
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls-pane">
+        <!-- POST MODE -->
+        <div class="panel-section" id="sec-mode">
+          <div class="sec-hdr" onclick="toggleSec('sec-mode')">
+            <span class="sec-title">Post Mode</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="mode-single"
+                  onclick="setPostMode('single')"
+                >
+                  📄 Single
+                </div>
+                <div
+                  class="tbtn"
+                  id="mode-carousel"
+                  onclick="setPostMode('carousel')"
+                >
+                  🎠 Carousel
+                </div>
+              </div>
+            </div>
+            <p class="hint" id="mode-hint">
+              Single image — one post, one frame.
+            </p>
+          </div>
+        </div>
+
+        <!-- SLIDES -->
+        <div class="panel-section" id="sec-slides" style="display: none">
+          <div class="sec-hdr" onclick="toggleSec('sec-slides')">
+            <span class="sec-title">Slides</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <p class="hint">
+              Each slide has its own headline &amp; photo. Brand, style &amp;
+              handle are shared.
+            </p>
+            <div class="slide-list" id="slide-list"></div>
+            <button class="btn-ghost-add" onclick="addSlide()">
+              ＋ Add Slide
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="panel-section" id="sec-content">
+          <div class="sec-hdr" onclick="toggleSec('sec-content')">
+            <span class="sec-title"
+              >Content
+              <span
+                id="slide-label"
+                style="color: var(--accent); font-weight: 700"
+              ></span
+            ></span>
+            <span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>Headline</label>
+              <textarea id="txt" oninput="onHeadlineChange()">
+Psychiatrists are starting to talk about a personality type called the "Otrovert."</textarea
+              >
+            </div>
+            <div class="field">
+              <label>Tag / Category</label>
+              <input
+                type="text"
+                id="tag"
+                value="MENTAL HEALTH"
+                oninput="redraw()"
+                placeholder="e.g. MENTAL HEALTH"
+              />
+            </div>
+            <div class="field">
+              <label>Background Photo</label>
+              <div class="upload-zone">
+                <input
+                  type="file"
+                  id="bg-file"
+                  accept="image/*"
+                  onchange="loadBg(event)"
+                />
+                <div class="upload-zone-text" id="bg-lbl">
+                  📷 Upload any photo<br /><small
+                    >Auto cover-fills every format</small
+                  >
+                </div>
+              </div>
+              <div class="hint" id="drag-hint" style="display: none">
+                ✋ Drag the preview to reposition photo
+              </div>
+              <div class="g3" id="focal-row">
+                <div class="tbtn on" onclick="setQuickFocus('top', this)">
+                  ↑ Top
+                </div>
+                <div class="tbtn" onclick="setQuickFocus('center', this)">
+                  ⊙ Mid
+                </div>
+                <div class="tbtn" onclick="setQuickFocus('bottom', this)">
+                  ↓ Bot
+                </div>
+              </div>
+              <button class="btn-ghost" onclick="clearBg()">
+                ✕ Remove photo
+              </button>
+            </div>
+            <div class="field">
+              <label>Text Alignment</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="align-left"
+                  onclick="setAlign('left', this)"
+                >
+                  Left
+                </div>
+                <div
+                  class="tbtn"
+                  id="align-center"
+                  onclick="setAlign('center', this)"
+                >
+                  Center
+                </div>
+                <div
+                  class="tbtn"
+                  id="align-right"
+                  onclick="setAlign('right', this)"
+                >
+                  Right
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Text Position</label>
+              <div class="btn-row">
+                <div class="tbtn" id="vpos-top" onclick="setVPos('top', this)">
+                  ↑ Top
+                </div>
+                <div
+                  class="tbtn on"
+                  id="vpos-middle"
+                  onclick="setVPos('middle', this)"
+                >
+                  ⊙ Middle
+                </div>
+                <div
+                  class="tbtn"
+                  id="vpos-bottom"
+                  onclick="setVPos('bottom', this)"
+                >
+                  ↓ Bottom
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CALL TO ACTION -->
+        <div class="panel-section" id="sec-cta">
+          <div class="sec-hdr" onclick="toggleSec('sec-cta')">
+            <span class="sec-title">Call to Action</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>CTA Type</label>
+              <div class="cta-type-wrap">
+                <div
+                  class="cta-tbtn on"
+                  id="cta-follow"
+                  onclick="setCTAType('follow', this)"
+                >
+                  👆<br />Follow
+                </div>
+                <div
+                  class="cta-tbtn"
+                  id="cta-assess"
+                  onclick="setCTAType('assess', this)"
+                >
+                  🧠<br />Quiz
+                </div>
+                <div
+                  class="cta-tbtn"
+                  id="cta-website"
+                  onclick="setCTAType('website', this)"
+                >
+                  🌐<br />Website
+                </div>
+                <div
+                  class="cta-tbtn"
+                  id="cta-custom"
+                  onclick="setCTAType('custom', this)"
+                >
+                  ✏️<br />Custom
+                </div>
+                <div
+                  class="cta-tbtn"
+                  id="cta-none"
+                  onclick="setCTAType('none', this)"
+                >
+                  ∅<br />None
+                </div>
+              </div>
+            </div>
+            <div class="field" id="cta-follow-row">
+              <label>Text</label
+              ><input
+                type="text"
+                id="cta-follow-txt"
+                value="Follow for more →"
+                oninput="redraw()"
+              />
+            </div>
+            <div class="field" id="cta-assess-row" style="display: none">
+              <label>Assessment Link / Text</label
+              ><input
+                type="text"
+                id="cta-assess-txt"
+                value="Take the free quiz → mentel.com/quiz"
+                oninput="redraw()"
+              />
+              <p class="hint">
+                💡 Short link or link-in-bio path — displays as readable text on
+                image.
+              </p>
+            </div>
+            <div class="field" id="cta-website-row" style="display: none">
+              <label>Website Text</label
+              ><input
+                type="text"
+                id="cta-website-txt"
+                value="Learn more → mentel.com"
+                oninput="redraw()"
+              />
+            </div>
+            <div class="field" id="cta-custom-row" style="display: none">
+              <label>Custom CTA</label
+              ><input
+                type="text"
+                id="cta-custom-txt"
+                value=""
+                oninput="redraw()"
+                placeholder="Type anything…"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- CAPTION GENERATOR -->
+        <div class="panel-section" id="sec-caption">
+          <div class="sec-hdr" onclick="toggleSec('sec-caption')">
+            <span class="sec-title">📋 Caption Generator</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <p class="hint">
+              Auto-generate a ready-to-paste caption with hashtags from your
+              headline.
+            </p>
+            <div class="field">
+              <label>Platform Tone</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="cap-tiktok"
+                  onclick="setCapTone('tiktok', this)"
+                >
+                  TikTok
+                </div>
+                <div class="tbtn" id="cap-ig" onclick="setCapTone('ig', this)">
+                  Instagram
+                </div>
+                <div
+                  class="tbtn"
+                  id="cap-twitter"
+                  onclick="setCapTone('twitter', this)"
+                >
+                  Twitter/X
+                </div>
+              </div>
+            </div>
+            <button class="btn-secondary" onclick="generateCaption()">
+              ✨ Generate Caption
+            </button>
+            <div id="caption-output" style="display: none">
+              <div class="caption-box" id="caption-text"></div>
+              <div class="caption-actions" style="margin-top: 6px">
+                <div class="caption-btn" id="copy-btn" onclick="copyCaption()">
+                  📋 Copy
+                </div>
+                <div class="caption-btn" onclick="generateCaption()">
+                  🔄 Regenerate
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HANDLE -->
+        <div class="panel-section" id="sec-handle">
+          <div class="sec-hdr" onclick="toggleSec('sec-handle')">
+            <span class="sec-title">Platform Handle</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>Platform</label>
+              <div class="plat-wrap">
+                <div
+                  class="plat-btn on"
+                  id="plat-tiktok"
+                  onclick="setPlatform('tiktok', this)"
+                >
+                  🎵 TikTok
+                </div>
+                <div
+                  class="plat-btn"
+                  id="plat-ig"
+                  onclick="setPlatform('ig', this)"
+                >
+                  📸 Instagram
+                </div>
+                <div
+                  class="plat-btn"
+                  id="plat-twitter"
+                  onclick="setPlatform('twitter', this)"
+                >
+                  𝕏 Twitter/X
+                </div>
+                <div
+                  class="plat-btn"
+                  id="plat-youtube"
+                  onclick="setPlatform('youtube', this)"
+                >
+                  ▶ YouTube
+                </div>
+                <div
+                  class="plat-btn"
+                  id="plat-none"
+                  onclick="setPlatform('none', this)"
+                >
+                  ∅ Hide
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label
+                >Handle for
+                <span id="handle-plat-lbl" style="color: var(--accent)"
+                  >TikTok</span
+                ></label
+              >
+              <div class="handle-wrap">
+                <span class="handle-prefix" id="handle-prefix-badge">@</span>
+                <input
+                  type="text"
+                  id="handle"
+                  value="mentelhealth"
+                  oninput="onHandleChange()"
+                  placeholder="yourhandle"
+                />
+              </div>
+              <p class="accent-note" id="handle-note">
+                Shown as @mentelhealth · TikTok
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BRAND -->
+        <div class="panel-section" id="sec-brand">
+          <div class="sec-hdr" onclick="toggleSec('sec-brand')">
+            <span class="sec-title">Brand</span><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>Brand Name</label
+              ><input
+                type="text"
+                id="brandname"
+                value="MENTEL"
+                oninput="redraw()"
+              />
+            </div>
+            <div class="field">
+              <label>Logo (replaces brand text)</label>
+              <div class="upload-zone">
+                <input
+                  type="file"
+                  id="logo-file"
+                  accept="image/*"
+                  onchange="loadLogo(event)"
+                />
+                <div class="upload-zone-text" id="logo-lbl">
+                  📎 Upload PNG / SVG
+                </div>
+              </div>
+            </div>
+            <div class="field" id="logo-size-row" style="display: none">
+              <label>Logo Size — <span id="logo-size-val">120</span> px</label>
+              <div class="range-wrap">
+                <input
+                  type="range"
+                  id="logo-size"
+                  min="40"
+                  max="300"
+                  value="120"
+                  oninput="
+                    document.getElementById('logo-size-val').textContent =
+                      this.value;
+                    redraw();
+                  "
+                />
+              </div>
+            </div>
+            <button class="btn-ghost" onclick="clearLogo()">
+              ✕ Remove logo
+            </button>
+          </div>
+        </div>
+
+        <!-- TIKTOK OPTIONS -->
+        <div class="panel-section" id="sec-tiktok">
+          <div class="sec-hdr" onclick="toggleSec('sec-tiktok')">
+            <span class="sec-title">TikTok Options</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>Layout Mode</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="tt-mode-text"
+                  onclick="setTTMode('text')"
+                >
+                  📝 Text Overlay
+                </div>
+                <div
+                  class="tbtn"
+                  id="tt-mode-full"
+                  onclick="setTTMode('fullscreen')"
+                >
+                  🖼 Full Screen
+                </div>
+              </div>
+              <p class="hint">
+                <b>Text Overlay</b> — gradient pulls text over photo.<br /><b
+                  >Full Screen</b
+                >
+                — photo fills frame, no text.
+              </p>
+            </div>
+            <div class="field">
+              <label
+                >Extra Text Zone Darkness —
+                <span id="tt-boost-val">40</span>%</label
+              >
+              <div class="range-wrap">
+                <input
+                  type="range"
+                  id="tt-boost"
+                  min="0"
+                  max="80"
+                  step="5"
+                  value="40"
+                  oninput="
+                    document.getElementById('tt-boost-val').textContent =
+                      this.value;
+                    redraw();
+                  "
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STYLE -->
+        <div class="panel-section" id="sec-style">
+          <div class="sec-hdr" onclick="toggleSec('sec-style')">
+            <span class="sec-title">Style</span><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <!-- Background type (no photo) -->
+            <div class="field">
+              <label>Background (when no photo)</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="bg-solid"
+                  onclick="setBgType('solid', this)"
+                >
+                  ⬛ Solid
+                </div>
+                <div
+                  class="tbtn"
+                  id="bg-gradient"
+                  onclick="setBgType('gradient', this)"
+                >
+                  🌅 Gradient
+                </div>
+              </div>
+            </div>
+            <div class="field" id="bg-solid-row">
+              <label>Solid Color</label>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <input
+                  type="color"
+                  id="bg-solid-color"
+                  value="#000000"
+                  oninput="redraw()"
+                />
+                <span style="font-size: 10px; color: var(--text2)"
+                  >Background fill color</span
+                >
+              </div>
+            </div>
+            <div class="field" id="bg-gradient-row" style="display: none">
+              <label>Gradient Colors</label>
+              <div
+                style="
+                  display: flex;
+                  gap: 8px;
+                  align-items: center;
+                  flex-wrap: wrap;
+                "
+              >
+                <input
+                  type="color"
+                  id="bg-grad-from"
+                  value="#0d1b2a"
+                  oninput="redraw()"
+                />
+                <span style="font-size: 10px; color: var(--text2)">→</span>
+                <input
+                  type="color"
+                  id="bg-grad-to"
+                  value="#1b4332"
+                  oninput="redraw()"
+                />
+              </div>
+              <div class="field" style="margin-top: 4px">
+                <label>Direction</label>
+                <div class="btn-row">
+                  <div
+                    class="tbtn on"
+                    id="grad-tb"
+                    onclick="setGradDir('tb', this)"
+                  >
+                    ↓ Top→Bot
+                  </div>
+                  <div
+                    class="tbtn"
+                    id="grad-diag"
+                    onclick="setGradDir('diag', this)"
+                  >
+                    ↗ Diagonal
+                  </div>
+                  <div
+                    class="tbtn"
+                    id="grad-radial"
+                    onclick="setGradDir('radial', this)"
+                  >
+                    ◎ Radial
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Headline Font Size — <span id="fsval">62</span> px</label>
+              <div class="range-wrap">
+                <input
+                  type="range"
+                  id="fs"
+                  min="24"
+                  max="96"
+                  value="62"
+                  oninput="
+                    document.getElementById('fsval').textContent = this.value;
+                    redraw();
+                  "
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Overlay Darkness — <span id="darkval">65</span>%</label>
+              <div class="range-wrap">
+                <input
+                  type="range"
+                  id="darkness"
+                  min="20"
+                  max="95"
+                  step="5"
+                  value="65"
+                  oninput="
+                    document.getElementById('darkval').textContent = this.value;
+                    redraw();
+                  "
+                />
+              </div>
+            </div>
+
+            <!-- TEXT COLOR -->
+            <div class="field">
+              <label>Headline Color</label>
+              <div class="txt-color-row">
+                <div
+                  class="txt-swatch on"
+                  style="background: #ffffff; border: 1px solid #444"
+                  data-color="#ffffff"
+                  onclick="setTextColor('#ffffff', this)"
+                  title="White"
+                ></div>
+                <div
+                  class="txt-swatch"
+                  style="background: #000000"
+                  data-color="#000000"
+                  onclick="setTextColor('#000000', this)"
+                  title="Black"
+                ></div>
+                <div
+                  class="txt-swatch"
+                  id="txt-swatch-accent"
+                  style="background: #2fbf71"
+                  data-color="accent"
+                  onclick="setTextColor('accent', this)"
+                  title="Accent"
+                ></div>
+                <div
+                  class="txt-swatch"
+                  style="background: #f4e9c1"
+                  data-color="#f4e9c1"
+                  onclick="setTextColor('#f4e9c1', this)"
+                  title="Cream"
+                ></div>
+                <div
+                  class="txt-swatch"
+                  style="background: #b0c4de"
+                  data-color="#b0c4de"
+                  onclick="setTextColor('#b0c4de', this)"
+                  title="Light blue"
+                ></div>
+                <input
+                  type="color"
+                  id="txt-custom-color"
+                  value="#ffffff"
+                  title="Custom color"
+                  oninput="setTextColor(this.value, null)"
+                  style="margin-left: 2px"
+                />
+              </div>
+            </div>
+
+            <!-- ACCENT COLOR -->
+            <div class="field">
+              <label>Accent Color</label>
+              <div class="swatches">
+                <div
+                  class="swatch on"
+                  style="background: #2fbf71"
+                  onclick="setAccent('#2fbf71', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #00b4d8"
+                  onclick="setAccent('#00b4d8', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #f4a261"
+                  onclick="setAccent('#f4a261', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #c9b037"
+                  onclick="setAccent('#c9b037', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #e63946"
+                  onclick="setAccent('#e63946', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #c77dff"
+                  onclick="setAccent('#c77dff', this)"
+                ></div>
+                <div
+                  class="swatch"
+                  style="background: #ffffff; border-color: #444"
+                  onclick="setAccent('#ffffff', this)"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAROUSEL SLIDE NUMBERING -->
+        <div class="panel-section" id="sec-slidenum">
+          <div class="sec-hdr" onclick="toggleSec('sec-slidenum')">
+            <span class="sec-title">Slide Numbering</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>Style</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="sn-dots"
+                  onclick="setSlideNumStyle('dots', this)"
+                >
+                  ●●● Dots
+                </div>
+                <div
+                  class="tbtn"
+                  id="sn-text"
+                  onclick="setSlideNumStyle('text', this)"
+                >
+                  1/5 Text
+                </div>
+                <div
+                  class="tbtn"
+                  id="sn-label"
+                  onclick="setSlideNumStyle('label', this)"
+                >
+                  Slide 1 Label
+                </div>
+                <div
+                  class="tbtn"
+                  id="sn-none"
+                  onclick="setSlideNumStyle('none', this)"
+                >
+                  ∅ None
+                </div>
+              </div>
+            </div>
+            <div class="field" id="sn-position-row">
+              <label>Position</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="snpos-bottom"
+                  onclick="setSlideNumPos('bottom', this)"
+                >
+                  Bottom
+                </div>
+                <div
+                  class="tbtn"
+                  id="snpos-top"
+                  onclick="setSlideNumPos('top', this)"
+                >
+                  Top
+                </div>
+              </div>
+            </div>
+            <p class="hint">
+              Only visible in Carousel mode. Applied to exported images.
+            </p>
+          </div>
+        </div>
+
+        <!-- CUSTOM SIZE -->
+        <div class="panel-section" id="sec-size">
+          <div class="sec-hdr" onclick="toggleSec('sec-size')">
+            <span class="sec-title">Custom Canvas Size</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <p class="hint">
+              Set any size for Pinterest, LinkedIn, YouTube thumbnail, etc.
+            </p>
+            <div class="field">
+              <label>Dimensions (px)</label>
+              <div class="custom-size-row">
+                <input
+                  type="number"
+                  id="custom-w"
+                  value="1080"
+                  min="100"
+                  max="4096"
+                  oninput="redraw()"
+                />
+                <span class="custom-size-sep">×</span>
+                <input
+                  type="number"
+                  id="custom-h"
+                  value="1080"
+                  min="100"
+                  max="4096"
+                  oninput="redraw()"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label>Quick Presets</label>
+              <div class="g2">
+                <div class="tbtn" onclick="setCustomSize(1200, 627)">
+                  LinkedIn Post
+                </div>
+                <div class="tbtn" onclick="setCustomSize(1000, 1500)">
+                  Pinterest
+                </div>
+                <div class="tbtn" onclick="setCustomSize(1280, 720)">
+                  YT Thumbnail
+                </div>
+                <div class="tbtn" onclick="setCustomSize(820, 312)">
+                  FB Cover
+                </div>
+              </div>
+            </div>
+            <button class="btn-secondary" onclick="applyCustomSize()">
+              📐 Use This Size
+            </button>
+          </div>
+        </div>
+
+        <!-- PRESETS -->
+        <div class="panel-section" id="sec-presets">
+          <div class="sec-hdr" onclick="toggleSec('sec-presets')">
+            <span class="sec-title">💾 Saved Presets</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <p class="hint">
+              Save your current style settings (colors, font size, darkness,
+              CTA, handle) to reuse later.
+            </p>
+            <div class="field">
+              <label>Preset Name</label>
+              <input
+                type="text"
+                id="preset-name"
+                placeholder="e.g. Mentel Dark Theme"
+                value=""
+              />
+            </div>
+            <button class="btn-secondary" onclick="savePreset()">
+              💾 Save Current Settings
+            </button>
+            <div id="preset-list" class="preset-list"></div>
+            <p class="status-text" id="preset-status"></p>
+          </div>
+        </div>
+
+        <!-- EXPORT -->
+        <div class="panel-section" id="sec-export">
+          <div class="sec-hdr" onclick="toggleSec('sec-export')">
+            <span class="sec-title">Export</span
+            ><span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <div class="field">
+              <label>File Format</label>
+              <div class="btn-row">
+                <div class="tbtn on" id="fmt-png" onclick="setFmt('png', this)">
+                  PNG
+                </div>
+                <div class="tbtn" id="fmt-jpeg" onclick="setFmt('jpeg', this)">
+                  JPG
+                </div>
+                <div class="tbtn" id="fmt-webp" onclick="setFmt('webp', this)">
+                  WEBP
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Sizes to Export</label>
+              <div class="exp-grid">
+                <div
+                  class="exp-item on"
+                  data-w="1080"
+                  data-h="1350"
+                  data-lbl="TikTok-Normal"
+                  onclick="this.classList.toggle('on')"
+                >
+                  <div class="exp-name">TikTok Normal</div>
+                  <div class="exp-size">1080×1350</div>
+                  <div class="exp-ratio">4:5</div>
+                </div>
+                <div
+                  class="exp-item on"
+                  data-w="1080"
+                  data-h="1920"
+                  data-lbl="TikTok-Full"
+                  onclick="this.classList.toggle('on')"
+                >
+                  <div class="exp-name">TikTok Full</div>
+                  <div class="exp-size">1080×1920</div>
+                  <div class="exp-ratio">9:16</div>
+                </div>
+                <div
+                  class="exp-item on"
+                  data-w="1080"
+                  data-h="1920"
+                  data-lbl="IG-Story"
+                  onclick="this.classList.toggle('on')"
+                >
+                  <div class="exp-name">IG Story</div>
+                  <div class="exp-size">1080×1920</div>
+                  <div class="exp-ratio">9:16</div>
+                </div>
+                <div
+                  class="exp-item on"
+                  data-w="1080"
+                  data-h="1080"
+                  data-lbl="IG-Square"
+                  onclick="this.classList.toggle('on')"
+                >
+                  <div class="exp-name">IG Square</div>
+                  <div class="exp-size">1080×1080</div>
+                  <div class="exp-ratio">1:1</div>
+                </div>
+                <div
+                  class="exp-item on"
+                  data-w="1080"
+                  data-h="1350"
+                  data-lbl="IG-Portrait"
+                  onclick="this.classList.toggle('on')"
+                >
+                  <div class="exp-name">IG Portrait</div>
+                  <div class="exp-size">1080×1350</div>
+                  <div class="exp-ratio">4:5</div>
+                </div>
+                <div
+                  class="exp-item"
+                  id="exp-custom"
+                  data-w="1080"
+                  data-h="1080"
+                  data-lbl="Custom"
+                  onclick="this.classList.toggle('on')"
+                  style="display: none"
+                >
+                  <div class="exp-name">Custom</div>
+                  <div class="exp-size" id="exp-custom-size">—</div>
+                  <div class="exp-ratio">Custom</div>
+                </div>
+              </div>
+            </div>
+            <div class="prog-wrap" id="pw">
+              <div class="prog-fill" id="pf"></div>
+            </div>
+            <button class="btn-primary" id="expbtn" onclick="exportAll()">
+              ⬇ Download Selected
+            </button>
+            <p class="status-text" id="statusmsg"></p>
+          </div>
+        </div>
+      </div>
+      <!-- /controls -->
+    </div>
+    <!-- /main -->
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════
+      //  STATE
+      // ═══════════════════════════════════════════════════════════════
+      let accentColor = "#2fbf71";
+      let textColor = "#ffffff"; // NEW: headline text color
+      let bgType = "solid"; // NEW: 'solid' | 'gradient'
+      let gradDir = "tb"; // NEW: 'tb' | 'diag' | 'radial'
+      let slideNumStyle = "dots"; // NEW: 'dots' | 'text' | 'label' | 'none'
+      let slideNumPos = "bottom"; // NEW: 'bottom' | 'top'
+      let capTone = "tiktok"; // NEW: caption platform tone
+      let fmt = "png";
+      let ttMode = "text";
+      let textAlign = "left";
+      let textVPos = "middle";
+      let ctaType = "follow";
+      let postMode = "single";
+      let logoImg = null;
+
+      const PLATFORM_META = {
+        tiktok: { prefix: "@", label: "TikTok", handle: "mentelhealth" },
+        ig: { prefix: "@", label: "Instagram", handle: "mentelhealth" },
+        twitter: { prefix: "@", label: "Twitter/X", handle: "mentelhealth" },
+        youtube: { prefix: "@", label: "YouTube", handle: "mentelhealth" },
+        none: { prefix: "", label: "", handle: "" },
+      };
+      let platform = "tiktok";
+
+      const PRESETS_MAP = {
+        "tt-portrait": { w: 1080, h: 1350, label: "1080×1350 · TikTok Normal" },
+        "tt-full": { w: 1080, h: 1920, label: "1080×1920 · TikTok Full" },
+        "ig-story": { w: 1080, h: 1920, label: "1080×1920 · IG Story" },
+        "ig-square": { w: 1080, h: 1080, label: "1080×1080 · IG Square" },
+        "ig-portrait": { w: 1080, h: 1350, label: "1080×1350 · IG Portrait" },
+        custom: { w: 1080, h: 1080, label: "Custom Size" },
+      };
+      let currentPreset = "tt-portrait";
+
+      let slides = [
+        {
+          headline:
+            'Psychiatrists are starting to talk about a personality type called the "Otrovert."',
+          bgImg: null,
+          imgOffsetX: 0.5,
+          imgOffsetY: 0.0,
+        },
+      ];
+      let currentSlide = 0;
+      function getSlide() {
+        return slides[currentSlide];
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  SLIDE MANAGEMENT
+      // ═══════════════════════════════════════════════════════════════
+      function addSlide() {
+        slides[currentSlide].headline = document.getElementById("txt").value;
+        slides.push({
+          headline: "",
+          bgImg: null,
+          imgOffsetX: 0.5,
+          imgOffsetY: 0.0,
+        });
+        switchSlide(slides.length - 1);
+      }
+      function removeSlide(idx) {
+        if (slides.length <= 1) return;
+        slides.splice(idx, 1);
+        if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+        loadSlideIntoUI();
+        renderSlideList();
+        updateSlideNav();
+      }
+      function switchSlide(idx) {
+        slides[currentSlide].headline = document.getElementById("txt").value;
+        currentSlide = idx;
+        loadSlideIntoUI();
+        renderSlideList();
+        updateSlideNav();
+      }
+      function loadSlideIntoUI() {
+        const s = getSlide();
+        document.getElementById("txt").value = s.headline;
+        document.getElementById("bg-lbl").innerHTML = s.bgImg
+          ? "✅ Photo loaded"
+          : "📷 Upload any photo<br/><small>Auto cover-fills every format</small>";
+        const cv = document.getElementById("preview-canvas");
+        s.bgImg
+          ? cv.classList.add("draggable")
+          : cv.classList.remove("draggable");
+        document.getElementById("drag-hint").style.display = s.bgImg
+          ? "block"
+          : "none";
+        document.getElementById("slide-label").textContent =
+          postMode === "carousel" ? `· Slide ${currentSlide + 1}` : "";
+        redraw();
+      }
+      function renderSlideList() {
+        const list = document.getElementById("slide-list");
+        list.innerHTML = "";
+        slides.forEach((s, i) => {
+          const row = document.createElement("div");
+          row.className = "slide-row" + (i === currentSlide ? " on" : "");
+          row.onclick = () => switchSlide(i);
+          const num = document.createElement("span");
+          num.className = "slide-num";
+          num.textContent = i + 1;
+          const miniWrap = document.createElement("div");
+          miniWrap.className = "slide-mini";
+          const tc = document.createElement("canvas");
+          tc.width = 60;
+          tc.height = 60;
+          const tctx = tc.getContext("2d");
+          tctx.fillStyle = "#111";
+          tctx.fillRect(0, 0, 60, 60);
+          if (s.bgImg) {
+            const sc = Math.max(60 / s.bgImg.width, 60 / s.bgImg.height);
+            const sw = s.bgImg.width * sc,
+              sh = s.bgImg.height * sc;
+            tctx.filter = "grayscale(100%) brightness(0.55)";
+            tctx.drawImage(
+              s.bgImg,
+              -((sw - 60) * s.imgOffsetX),
+              -((sh - 60) * s.imgOffsetY),
+              sw,
+              sh,
+            );
+            tctx.filter = "none";
+          }
+          tctx.fillStyle = accentColor;
+          tctx.font = "bold 14px sans-serif";
+          tctx.textAlign = "center";
+          tctx.fillText(i + 1, 30, 38);
+          miniWrap.appendChild(tc);
+          const txt = document.createElement("span");
+          txt.className = "slide-txt";
+          txt.textContent = s.headline || "(empty slide)";
+          const del = document.createElement("span");
+          del.className = "slide-del";
+          del.textContent = "✕";
+          del.title = "Delete slide";
+          del.onclick = (e) => {
+            e.stopPropagation();
+            removeSlide(i);
+          };
+          row.append(num, miniWrap, txt, del);
+          list.appendChild(row);
+        });
+      }
+      function updateSlideNav() {
+        const nav = document.getElementById("slide-nav");
+        nav.classList.toggle("on", postMode === "carousel");
+        document.getElementById("slide-counter").textContent =
+          `${currentSlide + 1} / ${slides.length}`;
+        document.getElementById("nav-prev").disabled = currentSlide === 0;
+        document.getElementById("nav-next").disabled =
+          currentSlide === slides.length - 1;
+      }
+      function navSlide(dir) {
+        const next = currentSlide + dir;
+        if (next < 0 || next >= slides.length) return;
+        switchSlide(next);
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  NEW: CAPTION GENERATOR
+      // ═══════════════════════════════════════════════════════════════
+      function setCapTone(t, el) {
+        capTone = t;
+        ["cap-tiktok", "cap-ig", "cap-twitter"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+      }
+
+      const MH_HASHTAGS = [
+        "#MentalHealth",
+        "#MentalHealthAwareness",
+        "#Psychology",
+        "#SelfCare",
+        "#Mindset",
+        "#MentalHealthMatters",
+        "#Therapy",
+        "#WellBeing",
+        "#EmotionalHealth",
+        "#Mentel",
+        "#MentalHealthTips",
+        "#PersonalityTypes",
+        "#MindfulLiving",
+        "#SelfAwareness",
+        "#InnerPeace",
+        "#HealingJourney",
+        "#BreakTheStigma",
+        "#MentalHealthAdvocate",
+      ];
+
+      function generateCaption() {
+        const headline = document.getElementById("txt").value.trim();
+        const tag = document.getElementById("tag").value.trim();
+        const cta = getCTAText();
+        const handle = PLATFORM_META[platform].handle;
+        const handleStr =
+          platform !== "none" && handle ? `@${handle}` : "Mentel";
+
+        // Pick 8-10 hashtags
+        const shuffled = [...MH_HASHTAGS].sort(() => Math.random() - 0.5);
+        const tags = shuffled.slice(0, 9).join(" ");
+
+        let caption = "";
+
+        if (capTone === "tiktok") {
+          caption = `${headline}\n\n${tag ? `${tag} | ` : ""}Are you an Otrovert? 🧠 Drop a ✅ in the comments if this sounds like you!\n\n${cta ? `👉 ${cta}\n\n` : ""}${handleStr} · Mental health facts you need to know\n\n${tags}`;
+        } else if (capTone === "ig") {
+          caption = `💭 ${headline}\n\n${tag ? `[${tag}]\n\n` : ""}This concept is changing how psychiatrists understand personality. Save this post to share with someone who needs to hear it.\n\n${cta ? `→ ${cta}\n\n` : ""}Follow ${handleStr} for more mental health insights.\n\n.\n.\n.\n${tags}`;
+        } else {
+          // twitter — short
+          const short =
+            headline.length > 200 ? headline.slice(0, 197) + "…" : headline;
+          caption = `${short}\n\n${cta ? `${cta}\n` : ""}${tags.split(" ").slice(0, 5).join(" ")}`;
+        }
+
+        document.getElementById("caption-output").style.display = "";
+        document.getElementById("caption-text").textContent = caption;
+        document.getElementById("copy-btn").classList.remove("copied");
+        document.getElementById("copy-btn").textContent = "📋 Copy";
+      }
+
+      function copyCaption() {
+        const txt = document.getElementById("caption-text").textContent;
+        navigator.clipboard
+          .writeText(txt)
+          .then(() => {
+            const btn = document.getElementById("copy-btn");
+            btn.textContent = "✅ Copied!";
+            btn.classList.add("copied");
+            setTimeout(() => {
+              btn.textContent = "📋 Copy";
+              btn.classList.remove("copied");
+            }, 2000);
+          })
+          .catch(() => {
+            // fallback
+            const ta = document.createElement("textarea");
+            ta.value = txt;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            document.getElementById("copy-btn").textContent = "✅ Copied!";
+          });
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  NEW: PRESETS (localStorage)
+      // ═══════════════════════════════════════════════════════════════
+      function getPresetData() {
+        return {
+          accentColor,
+          textColor,
+          bgType,
+          gradDir,
+          bgSolidColor: document.getElementById("bg-solid-color").value,
+          bgGradFrom: document.getElementById("bg-grad-from").value,
+          bgGradTo: document.getElementById("bg-grad-to").value,
+          fs: document.getElementById("fs").value,
+          darkness: document.getElementById("darkness").value,
+          ttBoost: document.getElementById("tt-boost").value,
+          ttMode,
+          textAlign,
+          textVPos,
+          ctaType,
+          platform,
+          slideNumStyle,
+          slideNumPos,
+          brandName: document.getElementById("brandname").value,
+          tag: document.getElementById("tag").value,
+          ctaFollowTxt: document.getElementById("cta-follow-txt").value,
+          ctaAssessTxt: document.getElementById("cta-assess-txt").value,
+          ctaWebsiteTxt: document.getElementById("cta-website-txt").value,
+          handles: JSON.parse(JSON.stringify(PLATFORM_META)),
+          savedAt: new Date().toLocaleDateString(),
+        };
+      }
+      function applyPresetData(d) {
+        if (!d) return;
+        // Colors
+        if (d.accentColor) {
+          accentColor = d.accentColor;
+          document.documentElement.style.setProperty("--accent", accentColor);
+          document
+            .querySelectorAll(".swatch")
+            .forEach((s) => s.classList.remove("on"));
+        }
+        if (d.textColor) {
+          textColor = d.textColor;
+        }
+        if (d.bgType) {
+          bgType = d.bgType;
+          document
+            .getElementById("bg-solid")
+            .classList.toggle("on", bgType === "solid");
+          document
+            .getElementById("bg-gradient")
+            .classList.toggle("on", bgType === "gradient");
+          document.getElementById("bg-solid-row").style.display =
+            bgType === "solid" ? "" : "none";
+          document.getElementById("bg-gradient-row").style.display =
+            bgType === "gradient" ? "" : "none";
+        }
+        if (d.gradDir) {
+          gradDir = d.gradDir;
+          ["grad-tb", "grad-diag", "grad-radial"].forEach((id) =>
+            document.getElementById(id).classList.remove("on"),
+          );
+          const gmap = {
+            tb: "grad-tb",
+            diag: "grad-diag",
+            radial: "grad-radial",
+          };
+          if (gmap[gradDir])
+            document.getElementById(gmap[gradDir]).classList.add("on");
+        }
+        if (d.bgSolidColor)
+          document.getElementById("bg-solid-color").value = d.bgSolidColor;
+        if (d.bgGradFrom)
+          document.getElementById("bg-grad-from").value = d.bgGradFrom;
+        if (d.bgGradTo)
+          document.getElementById("bg-grad-to").value = d.bgGradTo;
+        if (d.fs)
+          ((document.getElementById("fs").value = d.fs),
+            (document.getElementById("fsval").textContent = d.fs));
+        if (d.darkness)
+          ((document.getElementById("darkness").value = d.darkness),
+            (document.getElementById("darkval").textContent = d.darkness));
+        if (d.ttBoost)
+          ((document.getElementById("tt-boost").value = d.ttBoost),
+            (document.getElementById("tt-boost-val").textContent = d.ttBoost));
+        if (d.ttMode) setTTMode(d.ttMode);
+        if (d.textAlign) {
+          textAlign = d.textAlign;
+          ["align-left", "align-center", "align-right"].forEach((id) =>
+            document.getElementById(id).classList.remove("on"),
+          );
+          const map = {
+            left: "align-left",
+            center: "align-center",
+            right: "align-right",
+          };
+          if (map[textAlign])
+            document.getElementById(map[textAlign]).classList.add("on");
+        }
+        if (d.textVPos) {
+          textVPos = d.textVPos;
+          ["vpos-top", "vpos-middle", "vpos-bottom"].forEach((id) =>
+            document.getElementById(id).classList.remove("on"),
+          );
+          const map = {
+            top: "vpos-top",
+            middle: "vpos-middle",
+            bottom: "vpos-bottom",
+          };
+          if (map[textVPos])
+            document.getElementById(map[textVPos]).classList.add("on");
+        }
+        if (d.brandName)
+          document.getElementById("brandname").value = d.brandName;
+        if (d.tag) document.getElementById("tag").value = d.tag;
+        if (d.ctaFollowTxt)
+          document.getElementById("cta-follow-txt").value = d.ctaFollowTxt;
+        if (d.ctaAssessTxt)
+          document.getElementById("cta-assess-txt").value = d.ctaAssessTxt;
+        if (d.ctaWebsiteTxt)
+          document.getElementById("cta-website-txt").value = d.ctaWebsiteTxt;
+        if (d.slideNumStyle) {
+          slideNumStyle = d.slideNumStyle;
+          ["sn-dots", "sn-text", "sn-label", "sn-none"].forEach((id) =>
+            document.getElementById(id).classList.remove("on"),
+          );
+          const map = {
+            dots: "sn-dots",
+            text: "sn-text",
+            label: "sn-label",
+            none: "sn-none",
+          };
+          if (map[slideNumStyle])
+            document.getElementById(map[slideNumStyle]).classList.add("on");
+        }
+        if (d.handles) {
+          Object.keys(d.handles).forEach((k) => {
+            if (PLATFORM_META[k]) PLATFORM_META[k].handle = d.handles[k].handle;
+          });
+        }
+        if (d.platform) {
+          platform = d.platform;
+          document
+            .querySelectorAll(".plat-btn")
+            .forEach((b) => b.classList.remove("on"));
+          const pb = document.getElementById(`plat-${platform}`);
+          if (pb) pb.classList.add("on");
+          const m = PLATFORM_META[platform];
+          document.getElementById("handle-prefix-badge").textContent = m.prefix;
+          document.getElementById("handle-plat-lbl").textContent =
+            m.label || "—";
+          document.getElementById("handle").value = m.handle;
+          updateHandleNote();
+        }
+        if (d.ctaType) {
+          ctaType = d.ctaType;
+          document
+            .querySelectorAll(".cta-tbtn")
+            .forEach((b) => b.classList.remove("on"));
+          const cb = document.getElementById(`cta-${ctaType}`);
+          if (cb) cb.classList.add("on");
+          ["follow", "assess", "website", "custom"].forEach((t) => {
+            const r = document.getElementById(`cta-${t}-row`);
+            if (r) r.style.display = t === ctaType ? "" : "none";
+          });
+        }
+        redraw();
+      }
+      function savePreset() {
+        const name = document.getElementById("preset-name").value.trim();
+        if (!name) {
+          document.getElementById("preset-status").textContent =
+            "Enter a name first.";
+          return;
+        }
+        const data = getPresetData();
+        data.name = name;
+        let presets = JSON.parse(
+          localStorage.getItem("mentel_presets") || "[]",
+        );
+        presets.unshift(data);
+        if (presets.length > 20) presets = presets.slice(0, 20);
+        localStorage.setItem("mentel_presets", JSON.stringify(presets));
+        document.getElementById("preset-name").value = "";
+        document.getElementById("preset-status").textContent =
+          `✅ "${name}" saved!`;
+        setTimeout(
+          () => (document.getElementById("preset-status").textContent = ""),
+          2500,
+        );
+        renderPresetList();
+      }
+      function deletePreset(idx) {
+        let presets = JSON.parse(
+          localStorage.getItem("mentel_presets") || "[]",
+        );
+        presets.splice(idx, 1);
+        localStorage.setItem("mentel_presets", JSON.stringify(presets));
+        renderPresetList();
+      }
+      function renderPresetList() {
+        const presets = JSON.parse(
+          localStorage.getItem("mentel_presets") || "[]",
+        );
+        const el = document.getElementById("preset-list");
+        el.innerHTML = "";
+        if (!presets.length) {
+          el.innerHTML = '<p class="hint">No saved presets yet.</p>';
+          return;
+        }
+        presets.forEach((p, i) => {
+          const row = document.createElement("div");
+          row.className = "preset-item";
+          row.onclick = () => {
+            applyPresetData(p);
+            document.getElementById("preset-status").textContent =
+              `✅ "${p.name}" loaded!`;
+            setTimeout(
+              () => (document.getElementById("preset-status").textContent = ""),
+              2000,
+            );
+          };
+          const dot = document.createElement("div");
+          dot.style.cssText = `width:10px;height:10px;border-radius:50%;background:${p.accentColor || "#2fbf71"};flex-shrink:0`;
+          const nm = document.createElement("div");
+          nm.className = "preset-item-name";
+          nm.textContent = p.name;
+          const dt = document.createElement("div");
+          dt.className = "preset-item-date";
+          dt.textContent = p.savedAt || "";
+          const del = document.createElement("span");
+          del.className = "preset-item-del";
+          del.textContent = "✕";
+          del.onclick = (e) => {
+            e.stopPropagation();
+            deletePreset(i);
+          };
+          row.append(dot, nm, dt, del);
+          el.appendChild(row);
+        });
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  NEW: CUSTOM SIZE
+      // ═══════════════════════════════════════════════════════════════
+      function setCustomSize(w, h) {
+        document.getElementById("custom-w").value = w;
+        document.getElementById("custom-h").value = h;
+      }
+      function applyCustomSize() {
+        const w = parseInt(document.getElementById("custom-w").value) || 1080;
+        const h = parseInt(document.getElementById("custom-h").value) || 1080;
+        PRESETS_MAP["custom"] = { w, h, label: `${w}×${h} · Custom` };
+        document.getElementById("tab-custom").style.display = "";
+        document.getElementById("exp-custom").style.display = "";
+        document.getElementById("exp-custom").dataset.w = w;
+        document.getElementById("exp-custom").dataset.h = h;
+        document.getElementById("exp-custom-size").textContent = `${w}×${h}`;
+        switchPreview("custom", document.getElementById("tab-custom"));
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  NEW: STYLE CONTROLS
+      // ═══════════════════════════════════════════════════════════════
+      function setTextColor(c, el) {
+        textColor = c === "accent" ? accentColor : c;
+        document
+          .querySelectorAll(".txt-swatch")
+          .forEach((s) => s.classList.remove("on"));
+        if (el) el.classList.add("on");
+        redraw();
+      }
+      function setBgType(t, el) {
+        bgType = t;
+        document
+          .getElementById("bg-solid")
+          .classList.toggle("on", t === "solid");
+        document
+          .getElementById("bg-gradient")
+          .classList.toggle("on", t === "gradient");
+        document.getElementById("bg-solid-row").style.display =
+          t === "solid" ? "" : "none";
+        document.getElementById("bg-gradient-row").style.display =
+          t === "gradient" ? "" : "none";
+        redraw();
+      }
+      function setGradDir(d, el) {
+        gradDir = d;
+        ["grad-tb", "grad-diag", "grad-radial"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        redraw();
+      }
+      function setSlideNumStyle(s, el) {
+        slideNumStyle = s;
+        ["sn-dots", "sn-text", "sn-label", "sn-none"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        redraw();
+      }
+      function setSlideNumPos(p, el) {
+        slideNumPos = p;
+        ["snpos-bottom", "snpos-top"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        redraw();
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  CONTROLS (existing)
+      // ═══════════════════════════════════════════════════════════════
+      function setPostMode(mode) {
+        postMode = mode;
+        document
+          .getElementById("mode-single")
+          .classList.toggle("on", mode === "single");
+        document
+          .getElementById("mode-carousel")
+          .classList.toggle("on", mode === "carousel");
+        document.getElementById("sec-slides").style.display =
+          mode === "carousel" ? "" : "none";
+        document.getElementById("mode-hint").textContent =
+          mode === "carousel"
+            ? "Carousel — multiple slides. Each slide has its own headline & photo."
+            : "Single image — one post, one frame.";
+        document.getElementById("slide-label").textContent =
+          mode === "carousel" ? `· Slide ${currentSlide + 1}` : "";
+        updateSlideNav();
+        if (mode === "carousel") renderSlideList();
+        redraw();
+      }
+
+      let isDragging = false,
+        dragStartX,
+        dragStartY,
+        dragStartOffX,
+        dragStartOffY;
+      function initDrag() {
+        const cv = document.getElementById("preview-canvas");
+        cv.addEventListener("mousedown", (e) => {
+          if (!getSlide().bgImg) return;
+          isDragging = true;
+          dragStartX = e.clientX;
+          dragStartY = e.clientY;
+          dragStartOffX = getSlide().imgOffsetX;
+          dragStartOffY = getSlide().imgOffsetY;
+          cv.classList.add("dragging");
+          e.preventDefault();
+        });
+        window.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const s = getSlide();
+          if (!s.bgImg) return;
+          const c = document.getElementById("preview-canvas");
+          const p = PRESETS_MAP[currentPreset];
+          const scale = Math.max(p.w / s.bgImg.width, p.h / s.bgImg.height);
+          const ox = Math.max(0, s.bgImg.width * scale - p.w);
+          const oy = Math.max(0, s.bgImg.height * scale - p.h);
+          const dx = (e.clientX - dragStartX) * (p.w / c.offsetWidth);
+          const dy = (e.clientY - dragStartY) * (p.h / c.offsetHeight);
+          if (ox > 0)
+            s.imgOffsetX = Math.max(0, Math.min(1, dragStartOffX - dx / ox));
+          if (oy > 0)
+            s.imgOffsetY = Math.max(0, Math.min(1, dragStartOffY - dy / oy));
+          redraw();
+        });
+        window.addEventListener("mouseup", () => {
+          if (isDragging) {
+            isDragging = false;
+            document
+              .getElementById("preview-canvas")
+              .classList.remove("dragging");
+          }
+        });
+        cv.addEventListener(
+          "touchstart",
+          (e) => {
+            if (!getSlide().bgImg) return;
+            const t = e.touches[0];
+            isDragging = true;
+            dragStartX = t.clientX;
+            dragStartY = t.clientY;
+            dragStartOffX = getSlide().imgOffsetX;
+            dragStartOffY = getSlide().imgOffsetY;
+            e.preventDefault();
+          },
+          { passive: false },
+        );
+        window.addEventListener(
+          "touchmove",
+          (e) => {
+            if (!isDragging) return;
+            const t = e.touches[0];
+            const s = getSlide();
+            if (!s.bgImg) return;
+            const c = document.getElementById("preview-canvas");
+            const p = PRESETS_MAP[currentPreset];
+            const scale = Math.max(p.w / s.bgImg.width, p.h / s.bgImg.height);
+            const ox = Math.max(0, s.bgImg.width * scale - p.w);
+            const oy = Math.max(0, s.bgImg.height * scale - p.h);
+            const dx = (t.clientX - dragStartX) * (p.w / c.offsetWidth);
+            const dy = (t.clientY - dragStartY) * (p.h / c.offsetHeight);
+            if (ox > 0)
+              s.imgOffsetX = Math.max(0, Math.min(1, dragStartOffX - dx / ox));
+            if (oy > 0)
+              s.imgOffsetY = Math.max(0, Math.min(1, dragStartOffY - dy / oy));
+            redraw();
+            e.preventDefault();
+          },
+          { passive: false },
+        );
+        window.addEventListener("touchend", () => {
+          isDragging = false;
+        });
+      }
+
+      function setQuickFocus(pos, el) {
+        document
+          .querySelectorAll("#focal-row .tbtn")
+          .forEach((b) => b.classList.remove("on"));
+        el.classList.add("on");
+        const s = getSlide();
+        if (pos === "top") {
+          s.imgOffsetX = 0.5;
+          s.imgOffsetY = 0.0;
+        }
+        if (pos === "center") {
+          s.imgOffsetX = 0.5;
+          s.imgOffsetY = 0.5;
+        }
+        if (pos === "bottom") {
+          s.imgOffsetX = 0.5;
+          s.imgOffsetY = 1.0;
+        }
+        redraw();
+      }
+      function setTTMode(mode) {
+        ttMode = mode;
+        document
+          .getElementById("tt-mode-text")
+          .classList.toggle("on", mode === "text");
+        document
+          .getElementById("tt-mode-full")
+          .classList.toggle("on", mode === "fullscreen");
+        redraw();
+      }
+      function setAlign(a, el) {
+        textAlign = a;
+        ["align-left", "align-center", "align-right"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        redraw();
+      }
+      function setVPos(v, el) {
+        textVPos = v;
+        ["vpos-top", "vpos-middle", "vpos-bottom"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        redraw();
+      }
+      function setCTAType(type, el) {
+        ctaType = type;
+        document
+          .querySelectorAll(".cta-tbtn")
+          .forEach((b) => b.classList.remove("on"));
+        el.classList.add("on");
+        ["follow", "assess", "website", "custom"].forEach((t) => {
+          const r = document.getElementById(`cta-${t}-row`);
+          if (r) r.style.display = t === type ? "" : "none";
+        });
+        redraw();
+      }
+      function getCTAText() {
+        if (ctaType === "none") return "";
+        if (ctaType === "follow")
+          return document.getElementById("cta-follow-txt").value;
+        if (ctaType === "assess")
+          return document.getElementById("cta-assess-txt").value;
+        if (ctaType === "website")
+          return document.getElementById("cta-website-txt").value;
+        if (ctaType === "custom")
+          return document.getElementById("cta-custom-txt").value;
+        return "";
+      }
+      function setPlatform(p, el) {
+        PLATFORM_META[platform].handle = document
+          .getElementById("handle")
+          .value.trim();
+        platform = p;
+        document
+          .querySelectorAll(".plat-btn")
+          .forEach((b) => b.classList.remove("on"));
+        el.classList.add("on");
+        const m = PLATFORM_META[p];
+        document.getElementById("handle-prefix-badge").textContent = m.prefix;
+        document.getElementById("handle-plat-lbl").textContent = m.label || "—";
+        document.getElementById("handle").value = m.handle;
+        updateHandleNote();
+        redraw();
+      }
+      function onHandleChange() {
+        PLATFORM_META[platform].handle = document
+          .getElementById("handle")
+          .value.trim();
+        updateHandleNote();
+        redraw();
+      }
+      function updateHandleNote() {
+        const m = PLATFORM_META[platform];
+        const h = document.getElementById("handle").value.trim();
+        document.getElementById("handle-note").textContent =
+          platform === "none"
+            ? "Handle hidden on image"
+            : `Shown as ${m.prefix}${h} · ${m.label}`;
+      }
+      function onHeadlineChange() {
+        slides[currentSlide].headline = document.getElementById("txt").value;
+        redraw();
+      }
+      function toggleTheme() {
+        const html = document.documentElement;
+        const dark = html.getAttribute("data-theme") === "dark";
+        html.setAttribute("data-theme", dark ? "light" : "dark");
+        document.getElementById("theme-icon").textContent = dark ? "☀️" : "🌙";
+        document.getElementById("theme-lbl").textContent = dark
+          ? "Light"
+          : "Dark";
+      }
+      function toggleSec(id) {
+        document.getElementById(id).classList.toggle("collapsed");
+      }
+      function loadBg(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const img = new Image();
+        img.onload = () => {
+          const s = getSlide();
+          s.bgImg = img;
+          s.imgOffsetX = 0.5;
+          s.imgOffsetY = 0.0;
+          document.getElementById("preview-canvas").classList.add("draggable");
+          document.getElementById("drag-hint").style.display = "block";
+          document.getElementById("bg-lbl").innerHTML = "✅ " + f.name;
+          redraw();
+          if (postMode === "carousel") renderSlideList();
+        };
+        img.src = URL.createObjectURL(f);
+      }
+      function clearBg() {
+        const s = getSlide();
+        s.bgImg = null;
+        document.getElementById("bg-file").value = "";
+        document.getElementById("bg-lbl").innerHTML =
+          "📷 Upload any photo<br/><small>Auto cover-fills every format</small>";
+        document.getElementById("preview-canvas").classList.remove("draggable");
+        document.getElementById("drag-hint").style.display = "none";
+        redraw();
+        if (postMode === "carousel") renderSlideList();
+      }
+      function loadLogo(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const img = new Image();
+        img.onload = () => {
+          logoImg = img;
+          document.getElementById("logo-size-row").style.display = "";
+          redraw();
+        };
+        img.src = URL.createObjectURL(f);
+        document.getElementById("logo-lbl").textContent = "✅ " + f.name;
+      }
+      function clearLogo() {
+        logoImg = null;
+        document.getElementById("logo-file").value = "";
+        document.getElementById("logo-lbl").textContent = "📎 Upload PNG / SVG";
+        document.getElementById("logo-size-row").style.display = "none";
+        redraw();
+      }
+      function setAccent(c, el) {
+        accentColor = c;
+        document
+          .querySelectorAll(".swatch")
+          .forEach((s) => s.classList.remove("on"));
+        el.classList.add("on");
+        document.documentElement.style.setProperty("--accent", c);
+        // update accent swatch in text color row
+        document.getElementById("txt-swatch-accent").style.background = c;
+        // if textColor was accent, update it
+        if (textColor === accentColor || textColor === "accent") textColor = c;
+        redraw();
+      }
+      function setFmt(f, el) {
+        fmt = f;
+        ["fmt-png", "fmt-jpeg", "fmt-webp"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+      }
+      function switchPreview(key, el) {
+        currentPreset = key;
+        document
+          .querySelectorAll(".size-tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        redraw();
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  DRAW ENGINE
+      // ═══════════════════════════════════════════════════════════════
+      function drawCard(canvas, W, H, isTikTok, slideData) {
+        const ctx = canvas.getContext("2d");
+        canvas.width = W;
+        canvas.height = H;
+        const s = slideData;
+        const fs = parseInt(document.getElementById("fs").value);
+        const darkness =
+          parseInt(document.getElementById("darkness").value) / 100;
+        const ttBoost =
+          parseInt(document.getElementById("tt-boost").value) / 100;
+        const headline = s.headline || "";
+        const tag = document.getElementById("tag").value.trim();
+        const cta = getCTAText();
+        const brandName = document
+          .getElementById("brandname")
+          .value.toUpperCase();
+        const logoSzPx = logoImg
+          ? parseInt(document.getElementById("logo-size").value)
+          : 0;
+        const m = PLATFORM_META[platform];
+        const handleStr =
+          platform !== "none" && m.handle ? m.prefix + m.handle : "";
+        const solidColor = document.getElementById("bg-solid-color").value;
+        const gradFrom = document.getElementById("bg-grad-from").value;
+        const gradTo = document.getElementById("bg-grad-to").value;
+        const fS = W / 1080;
+        const resolvedTextColor = textColor;
+
+        // 1. Background (solid/gradient/photo)
+        if (!s.bgImg) {
+          if (bgType === "gradient") {
+            let grd;
+            if (gradDir === "radial") {
+              grd = ctx.createRadialGradient(
+                W / 2,
+                H / 2,
+                0,
+                W / 2,
+                H / 2,
+                Math.max(W, H) * 0.7,
+              );
+            } else if (gradDir === "diag") {
+              grd = ctx.createLinearGradient(0, 0, W, H);
+            } else {
+              grd = ctx.createLinearGradient(0, 0, 0, H);
+            }
+            grd.addColorStop(0, gradFrom);
+            grd.addColorStop(1, gradTo);
+            ctx.fillStyle = grd;
+          } else {
+            ctx.fillStyle = solidColor;
+          }
+          ctx.fillRect(0, 0, W, H);
+        } else {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, W, H);
+          const scale = Math.max(W / s.bgImg.width, H / s.bgImg.height);
+          const sw = s.bgImg.width * scale,
+            sh = s.bgImg.height * scale;
+          const dx = -((sw - W) * s.imgOffsetX),
+            dy = -((sh - H) * s.imgOffsetY);
+          ctx.save();
+          ctx.filter =
+            isTikTok && ttMode === "fullscreen"
+              ? "none"
+              : `grayscale(100%) brightness(${0.88 - darkness * 0.28}) contrast(1.12)`;
+          ctx.drawImage(s.bgImg, dx, dy, sw, sh);
+          ctx.restore();
+        }
+        if (isTikTok && ttMode === "fullscreen") return;
+
+        // 2. Gradient overlay (only with photo)
+        if (s.bgImg) {
+          const grad = ctx.createLinearGradient(0, H * 0.06, 0, H);
+          grad.addColorStop(0, "rgba(0,0,0,0)");
+          grad.addColorStop(0.22, `rgba(0,0,0,${darkness * 0.38})`);
+          grad.addColorStop(0.52, `rgba(0,0,0,${darkness * 0.8})`);
+          grad.addColorStop(1, "rgba(0,0,0,0.97)");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, W, H);
+          if (isTikTok && ttBoost > 0) {
+            const bg2 = ctx.createLinearGradient(0, H * 0.3, 0, H);
+            bg2.addColorStop(0, "rgba(0,0,0,0)");
+            bg2.addColorStop(0.5, `rgba(0,0,0,${ttBoost * 0.5})`);
+            bg2.addColorStop(1, `rgba(0,0,0,${ttBoost})`);
+            ctx.fillStyle = bg2;
+            ctx.fillRect(0, H * 0.3, W, H * 0.7);
+          }
+        }
+
+        // 3. Sizes & layout
+        const padH = W * 0.07;
+        const usableW = W - padH * 2;
+        const headFS = Math.round(fs * fS);
+        const tagFS = Math.round(17 * fS);
+        const ctaFS = Math.round(19 * fS);
+        const brandFS = Math.round(19 * fS);
+        const handleFS = Math.round(18 * fS);
+        const platFS = Math.round(11 * fS);
+        const dotR = Math.round(5 * fS);
+        const lineH = headFS * 1.15;
+
+        let textX, ctxAlign;
+        if (textAlign === "left") {
+          textX = padH;
+          ctxAlign = "left";
+        }
+        if (textAlign === "center") {
+          textX = W / 2;
+          ctxAlign = "center";
+        }
+        if (textAlign === "right") {
+          textX = padH + usableW;
+          ctxAlign = "right";
+        }
+
+        // Word-wrap
+        ctx.font = `900 ${headFS}px Montserrat, Arial Black, sans-serif`;
+        const words = headline.split(" ");
+        const lines = [];
+        let line = "";
+        for (const w of words) {
+          const test = line ? line + " " + w : w;
+          if (ctx.measureText(test).width > usableW && line) {
+            lines.push(line);
+            line = w;
+          } else line = test;
+        }
+        if (line) lines.push(line);
+
+        const logoH = logoImg ? Math.round(logoSzPx * fS) : 0;
+        const logoW = logoImg
+          ? Math.round((logoImg.width * logoH) / logoImg.height)
+          : 0;
+        const brandRowH = logoImg
+          ? logoH + Math.round(8 * fS)
+          : Math.round(34 * fS);
+        const gapBT = Math.round(12 * fS);
+        const gapTH = Math.round(10 * fS);
+        const gapHC = Math.round(36 * fS);
+        const gapCHn = Math.round(18 * fS);
+        const edgePad = Math.round(64 * fS);
+        const tagRowH = tag ? tagFS + gapTH : 0;
+        const headBlockH = lines.length * lineH;
+        const ctaH = cta ? ctaFS : 0;
+        const handleH = handleStr ? platFS + Math.round(4 * fS) + handleFS : 0;
+        let totalH = brandRowH + gapBT + tagRowH + headBlockH;
+        if (cta) totalH += gapHC + ctaH;
+        if (handleStr) totalH += gapCHn + handleH;
+        totalH += edgePad;
+
+        let blockTop;
+        if (textVPos === "top") blockTop = edgePad;
+        else if (textVPos === "bottom") blockTop = H - totalH;
+        else blockTop = (H - totalH) / 2;
+        blockTop = Math.max(edgePad * 0.4, blockTop);
+        let y = blockTop;
+
+        // 4. Brand row
+        const brandMidY = y + brandRowH / 2;
+        if (logoImg) {
+          const lgap = Math.round(12 * fS);
+          const lineLen = Math.max(0, (usableW - logoW - lgap * 2) / 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.18)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(padH, brandMidY);
+          ctx.lineTo(padH + lineLen, brandMidY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(padH + lineLen + lgap + logoW + lgap, brandMidY);
+          ctx.lineTo(padH + usableW, brandMidY);
+          ctx.stroke();
+          ctx.drawImage(
+            logoImg,
+            padH + lineLen + lgap,
+            brandMidY - logoH / 2,
+            logoW,
+            logoH,
+          );
+        } else {
+          ctx.font = `700 ${brandFS}px Montserrat, Arial Black, sans-serif`;
+          const bTxtW =
+            ctx.measureText(
+              document.getElementById("brandname").value.toUpperCase(),
+            ).width +
+            dotR * 2 +
+            Math.round(8 * fS);
+          const lgap = Math.round(10 * fS);
+          const lineLen = Math.max(0, (usableW - bTxtW - lgap * 2) / 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.18)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(padH, brandMidY);
+          ctx.lineTo(padH + lineLen, brandMidY);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(padH + lineLen + lgap + bTxtW + lgap, brandMidY);
+          ctx.lineTo(padH + usableW, brandMidY);
+          ctx.stroke();
+          const bX = padH + lineLen + lgap;
+          ctx.fillStyle = accentColor;
+          ctx.beginPath();
+          ctx.arc(bX + dotR, brandMidY, dotR, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = `700 ${brandFS}px Montserrat, Arial Black, sans-serif`;
+          ctx.fillStyle = "#fff";
+          ctx.textAlign = "left";
+          ctx.fillText(
+            brandName,
+            bX + dotR * 2 + Math.round(6 * fS),
+            brandMidY + brandFS * 0.36,
+          );
+        }
+        y += brandRowH + gapBT;
+
+        // 5. Tag
+        if (tag) {
+          ctx.font = `700 ${tagFS}px Inter, Arial, sans-serif`;
+          ctx.fillStyle = accentColor;
+          ctx.textAlign = "center";
+          ctx.fillText(tag.toUpperCase(), W / 2, y + tagFS);
+          y += tagRowH;
+        }
+
+        // 6. Headline (user-selected color)
+        ctx.font = `900 ${headFS}px Montserrat, Arial Black, sans-serif`;
+        ctx.fillStyle = resolvedTextColor;
+        ctx.textAlign = ctxAlign;
+        ctx.shadowColor = "rgba(0,0,0,0.85)";
+        ctx.shadowBlur = Math.round(20 * fS);
+        for (let i = 0; i < lines.length; i++)
+          ctx.fillText(lines[i], textX, y + (i + 1) * lineH);
+        ctx.shadowBlur = 0;
+        y += headBlockH;
+
+        // 7. CTA
+        if (cta) {
+          y += gapHC;
+          ctx.font = `500 ${ctaFS}px Inter, Arial, sans-serif`;
+          ctx.fillStyle = "rgba(255,255,255,0.55)";
+          ctx.textAlign = ctxAlign;
+          ctx.fillText(cta, textX, y + ctaFS);
+          y += ctaH;
+        }
+
+        // 8. Handle
+        if (handleStr) {
+          y += gapCHn;
+          ctx.font = `700 ${platFS}px Inter, Arial, sans-serif`;
+          ctx.fillStyle = "rgba(255,255,255,0.28)";
+          ctx.textAlign = ctxAlign;
+          if (platform !== "none")
+            ctx.fillText(m.label.toUpperCase(), textX, y + platFS);
+          y += platFS + Math.round(4 * fS);
+          ctx.font = `700 ${handleFS}px Inter, Arial, sans-serif`;
+          ctx.fillStyle = accentColor;
+          ctx.textAlign = ctxAlign;
+          ctx.fillText(handleStr, textX, y + handleFS);
+          y += handleFS;
+        }
+
+        // 9. Slide indicator (NEW: multiple styles)
+        if (
+          postMode === "carousel" &&
+          slides.length > 1 &&
+          slideNumStyle !== "none"
+        ) {
+          const si = slides.indexOf(s);
+          const isTop = slideNumPos === "top";
+
+          if (slideNumStyle === "dots") {
+            const dd = Math.round(8 * fS),
+              dg = Math.round(6 * fS);
+            const totalDW = slides.length * dd + (slides.length - 1) * dg;
+            const dotY = isTop ? Math.round(32 * fS) : H - Math.round(28 * fS);
+            const dsx = (W - totalDW) / 2;
+            slides.forEach((_, di) => {
+              ctx.beginPath();
+              ctx.arc(
+                dsx + di * (dd + dg) + dd / 2,
+                dotY,
+                dd / 2,
+                0,
+                Math.PI * 2,
+              );
+              ctx.fillStyle = di === si ? accentColor : "rgba(255,255,255,0.3)";
+              ctx.fill();
+            });
+          } else if (slideNumStyle === "text") {
+            const numFS = Math.round(20 * fS);
+            const numTxt = `${si + 1}/${slides.length}`;
+            const numY = isTop ? Math.round(40 * fS) : H - Math.round(20 * fS);
+            ctx.font = `700 ${numFS}px Montserrat, Arial Black, sans-serif`;
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.textAlign = "right";
+            ctx.fillText(numTxt, W - padH, numY);
+          } else if (slideNumStyle === "label") {
+            const numFS = Math.round(18 * fS);
+            const numTxt = `Slide ${si + 1} of ${slides.length}`;
+            const numY = isTop ? Math.round(40 * fS) : H - Math.round(20 * fS);
+            ctx.font = `700 ${numFS}px Inter, Arial, sans-serif`;
+            ctx.fillStyle = accentColor;
+            ctx.textAlign = "right";
+            ctx.fillText(numTxt, W - padH, numY);
+          }
+        }
+
+        ctx.textAlign = "left";
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  PREVIEW
+      // ═══════════════════════════════════════════════════════════════
+      function redraw() {
+        const preset = PRESETS_MAP[currentPreset];
+        const isTT =
+          currentPreset === "tt-portrait" || currentPreset === "tt-full";
+        const canvas = document.getElementById("preview-canvas");
+        drawCard(canvas, preset.w, preset.h, isTT, getSlide());
+        const wrap = document.getElementById("canvas-wrap");
+        const avW = wrap.clientWidth - 4,
+          avH = wrap.clientHeight - 4;
+        const scale = Math.min(avW / preset.w, avH / preset.h);
+        canvas.style.width = Math.round(preset.w * scale) + "px";
+        canvas.style.height = Math.round(preset.h * scale) + "px";
+        document.getElementById("preview-note").textContent =
+          preset.label +
+          (getSlide().bgImg ? " · Drag to reposition" : " · Live Preview");
+        updateHandleNote();
+        updateSlideNav();
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  EXPORT
+      // ═══════════════════════════════════════════════════════════════
+      async function exportAll() {
+        slides[currentSlide].headline = document.getElementById("txt").value;
+        const selected = [...document.querySelectorAll(".exp-item.on")];
+        if (!selected.length) {
+          document.getElementById("statusmsg").textContent =
+            "Select at least one size.";
+          return;
+        }
+        const btn = document.getElementById("expbtn");
+        btn.disabled = true;
+        const pw = document.getElementById("pw");
+        pw.style.display = "block";
+        const pf = document.getElementById("pf");
+        const mimeMap = {
+          png: "image/png",
+          jpeg: "image/jpeg",
+          webp: "image/webp",
+        };
+        const extMap = { png: "png", jpeg: "jpg", webp: "webp" };
+        const slidesToExport = postMode === "carousel" ? slides : [getSlide()];
+        const total = selected.length * slidesToExport.length;
+        let done = 0;
+        for (const item of selected) {
+          const W = parseInt(item.dataset.w),
+            H = parseInt(item.dataset.h),
+            lbl = item.dataset.lbl;
+          const isTT = lbl.startsWith("TikTok");
+          for (let si = 0; si < slidesToExport.length; si++) {
+            const sfx = postMode === "carousel" ? `_slide${si + 1}` : "";
+            document.getElementById("statusmsg").textContent =
+              `Rendering ${lbl}${sfx}… (${done + 1}/${total})`;
+            pf.style.width = (done / total) * 85 + "%";
+            await new Promise((r) => setTimeout(r, 30));
+            const off = document.createElement("canvas");
+            drawCard(off, W, H, isTT, slidesToExport[si]);
+            const dataUrl = off.toDataURL(
+              mimeMap[fmt],
+              fmt === "png" ? 1.0 : 0.93,
+            );
+            const a = document.createElement("a");
+            a.href = dataUrl;
+            a.download = `mentel_${lbl}${sfx}_${W}x${H}.${extMap[fmt]}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            await new Promise((r) => setTimeout(r, 260));
+            done++;
+          }
+        }
+        pf.style.width = "100%";
+        setTimeout(() => {
+          pw.style.display = "none";
+          pf.style.width = "0%";
+        }, 700);
+        document.getElementById("statusmsg").textContent =
+          `✅ ${done} file${done > 1 ? "s" : ""} downloaded!`;
+        btn.disabled = false;
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      //  INIT
+      // ═══════════════════════════════════════════════════════════════
+      window.addEventListener("load", () => {
+        initDrag();
+        [
+          "cta-follow-txt",
+          "cta-assess-txt",
+          "cta-website-txt",
+          "cta-custom-txt",
+        ].forEach((id) =>
+          document.getElementById(id).addEventListener("input", redraw),
+        );
+        ["bg-solid-color", "bg-grad-from", "bg-grad-to"].forEach((id) =>
+          document.getElementById(id).addEventListener("input", redraw),
+        );
+        document
+          .getElementById("handle")
+          .addEventListener("input", onHandleChange);
+        renderPresetList();
+        document.fonts.ready.then(() => redraw());
+      });
+      window.addEventListener("resize", () => redraw());
+    </script>
+  </body>
+</html>
