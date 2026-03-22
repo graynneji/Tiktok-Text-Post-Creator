@@ -951,6 +951,21 @@
           overflow-y: visible;
         }
       }
+      
+      @media (max-width: 640px) {
+  .preview-pane {
+    height: 90vw;
+    min-height: 320px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
     </style>
   </head>
   <body>
@@ -2832,7 +2847,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         const ctx = canvas.getContext("2d");
         canvas.width = W;
         canvas.height = H;
-        ctx.clearRect(0, 0, W, H);  // just added this
+      //  ctx.clearRect(0, 0, W, H);  // just added this
         const s = slideData;
         const fs = parseInt(document.getElementById("fs").value);
         const darkness =
