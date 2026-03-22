@@ -3,11 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mentel Post Generator</title>
+    <title>Mentel Post Generator — Mental Health Social Media Content</title>
+    <meta
+      name="description"
+      content="Create branded mental health social media posts for TikTok, Instagram and more. Free, fast, no sign-up required."
+    />
+    <meta
+      name="keywords"
+      content="mental health content, social media post generator, TikTok mental health, Instagram mental health, Mentel"
+    />
+    <meta name="author" content="Mentel" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://content.trymentel.com/" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://content.trymentel.com/" />
+    <meta property="og:title" content="Mentel Post Generator" />
+    <meta
+      property="og:description"
+      content="Create branded mental health social media posts for TikTok and Instagram in seconds."
+    />
+    <meta
+      property="og:image"
+      content="https://content.trymentel.com/og-image.png"
+    />
+    <meta property="og:site_name" content="Mentel" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@mentelhealth" />
+    <meta name="twitter:title" content="Mentel Post Generator" />
+    <meta
+      name="twitter:description"
+      content="Create branded mental health social media posts for TikTok and Instagram in seconds."
+    />
+    <meta
+      name="twitter:image"
+      content="https://content.trymentel.com/og-image.png"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- JSZip for bundling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
       [data-theme="dark"] {
         --accent: #2fbf71;
@@ -24,6 +62,8 @@
         --canvas-bg: #080808;
         --swatch-ring: #fff;
         --danger: #e63946;
+        --publish-bg: #0a1a0f;
+        --publish-border: #1a3a22;
       }
       [data-theme="light"] {
         --accent: #18a350;
@@ -40,6 +80,8 @@
         --canvas-bg: #ddddd9;
         --swatch-ring: #111;
         --danger: #e63946;
+        --publish-bg: #f0fdf5;
+        --publish-border: #bbf7d0;
       }
       *,
       *::before,
@@ -65,8 +107,6 @@
           background 0.2s,
           color 0.2s;
       }
-
-      /* TOPBAR */
       .topbar {
         display: flex;
         align-items: center;
@@ -113,16 +153,12 @@
         border-color: var(--accent);
         color: var(--accent);
       }
-
-      /* LAYOUT */
       .main {
         display: flex;
         flex: 1;
         overflow: hidden;
         height: calc(100vh - 42px);
       }
-
-      /* PREVIEW */
       .preview-pane {
         display: flex;
         flex-direction: column;
@@ -227,8 +263,6 @@
         text-transform: uppercase;
         flex-shrink: 0;
       }
-
-      /* CONTROLS */
       .controls-pane {
         width: 300px;
         flex-shrink: 0;
@@ -248,8 +282,6 @@
         background: var(--border);
         border-radius: 2px;
       }
-
-      /* SECTION */
       .panel-section {
         border-bottom: 1px solid var(--border);
       }
@@ -289,8 +321,6 @@
       .panel-section.collapsed .sec-body {
         display: none;
       }
-
-      /* FIELD */
       .field {
         display: flex;
         flex-direction: column;
@@ -304,8 +334,6 @@
         color: var(--text2);
         display: block;
       }
-
-      /* INPUTS */
       textarea,
       input[type="text"],
       input[type="number"] {
@@ -316,7 +344,7 @@
         color: var(--text);
         font-family: "Inter", sans-serif;
         font-weight: 500;
-        font-size: 12px;
+        font-size: 16px;
         padding: 8px 10px;
         outline: none;
         transition: border-color 0.2s;
@@ -350,8 +378,6 @@
         border: none;
         border-radius: 5px;
       }
-
-      /* GRIDS */
       .g2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -362,20 +388,10 @@
         grid-template-columns: 1fr 1fr 1fr;
         gap: 5px;
       }
-
-      /* RANGE */
       .range-wrap {
         display: flex;
         align-items: center;
         gap: 8px;
-      }
-      .range-val {
-        font-size: 10px;
-        font-weight: 700;
-        color: var(--accent);
-        min-width: 32px;
-        text-align: right;
-        flex-shrink: 0;
       }
       input[type="range"] {
         flex: 1;
@@ -394,8 +410,6 @@
         cursor: pointer;
         border: 2px solid var(--surface);
       }
-
-      /* TOGGLE BUTTONS */
       .btn-row {
         display: flex;
         gap: 5px;
@@ -427,8 +441,6 @@
         color: var(--accent);
         background: var(--accent-dim);
       }
-
-      /* UPLOAD */
       .upload-zone {
         border: 1px dashed var(--border);
         border-radius: 7px;
@@ -457,8 +469,6 @@
         color: var(--text2);
         line-height: 1.6;
       }
-
-      /* SWATCHES */
       .swatches {
         display: flex;
         gap: 7px;
@@ -482,8 +492,6 @@
       .swatch.on {
         border-color: var(--swatch-ring);
       }
-
-      /* TEXT COLOR SWATCHES */
       .txt-color-row {
         display: flex;
         align-items: center;
@@ -507,8 +515,6 @@
       .txt-swatch.on {
         border-color: var(--accent);
       }
-
-      /* EXPORT GRID */
       .exp-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -545,8 +551,6 @@
         font-weight: 700;
         margin-top: 2px;
       }
-
-      /* BUTTONS */
       .btn-primary {
         background: var(--accent);
         border: none;
@@ -625,8 +629,6 @@
       .btn-secondary:hover {
         border-color: var(--accent);
       }
-
-      /* PROGRESS */
       .prog-wrap {
         height: 3px;
         background: var(--border);
@@ -647,8 +649,6 @@
         min-height: 14px;
         line-height: 1.5;
       }
-
-      /* HELPERS */
       .hint {
         font-size: 10px;
         color: var(--text2);
@@ -664,8 +664,6 @@
         font-weight: 600;
         line-height: 1.4;
       }
-
-      /* HANDLE */
       .handle-wrap {
         position: relative;
         display: flex;
@@ -683,8 +681,6 @@
       .handle-wrap input {
         padding-left: 22px;
       }
-
-      /* SLIDE LIST */
       .slide-list {
         display: flex;
         flex-direction: column;
@@ -747,8 +743,6 @@
       .slide-del:hover {
         color: var(--danger);
       }
-
-      /* CTA TYPE */
       .cta-type-wrap {
         display: flex;
         gap: 5px;
@@ -778,8 +772,6 @@
         color: var(--accent);
         background: var(--accent-dim);
       }
-
-      /* PLATFORM */
       .plat-wrap {
         display: flex;
         gap: 5px;
@@ -806,8 +798,6 @@
         color: var(--accent);
         background: var(--accent-dim);
       }
-
-      /* PRESET LIST */
       .preset-list {
         display: flex;
         flex-direction: column;
@@ -849,8 +839,6 @@
       .preset-item-del:hover {
         color: var(--danger);
       }
-
-      /* CAPTION BOX */
       .caption-box {
         background: var(--input-bg);
         border: 1px solid var(--border);
@@ -890,8 +878,6 @@
         color: var(--accent);
         background: var(--accent-dim);
       }
-
-      /* CUSTOM SIZE */
       .custom-size-row {
         display: flex;
         align-items: center;
@@ -908,13 +894,532 @@
         flex-shrink: 0;
       }
 
-      /* BG TYPE */
-      .bg-preview {
-        width: 100%;
-        height: 48px;
-        border-radius: 7px;
+      /* ── PUBLISH PANEL ────────────────────────────────────────── */
+      .publish-panel {
+        background: var(--publish-bg);
+        border-bottom: 1px solid var(--publish-border);
+      }
+      .publish-panel .sec-hdr {
+        border-bottom: 1px solid var(--publish-border);
+      }
+      .publish-panel .sec-title {
+        color: var(--accent);
+        font-size: 10px;
+        letter-spacing: 3px;
+      }
+      .pub-step {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .pub-step-label {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--text3);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .pub-step-num {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #000;
+        font-size: 9px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .pub-divider {
+        height: 1px;
+        background: var(--publish-border);
+        margin: 4px 0;
+      }
+      .platform-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .platform-card {
         border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+        background: var(--input-bg);
+        position: relative;
+      }
+      .platform-card:hover {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+        transform: translateY(-1px);
+      }
+      .platform-card.selected {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .platform-card .pc-icon {
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+      .platform-card .pc-name {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text);
+      }
+      .platform-card .pc-desc {
+        font-size: 8px;
+        color: var(--text3);
         margin-top: 2px;
+      }
+      .platform-card .pc-check {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #000;
+        font-size: 8px;
+        font-weight: 900;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .platform-card.selected .pc-check {
+        display: flex;
+      }
+
+      .publish-btn-main {
+        background: linear-gradient(135deg, var(--accent) 0%, #1a9955 100%);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-family: "Inter", sans-serif;
+        font-weight: 900;
+        font-size: 12px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(47, 191, 113, 0.25);
+      }
+      .publish-btn-main:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 28px rgba(47, 191, 113, 0.4);
+      }
+      .publish-btn-main:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .pub-progress-wrap {
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+        display: none;
+      }
+      .pub-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), #1aff88);
+        width: 0%;
+        transition: width 0.3s;
+        animation: shimmer 1.5s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .pub-status {
+        font-size: 10px;
+        color: var(--text2);
+        text-align: center;
+        min-height: 16px;
+        line-height: 1.5;
+      }
+      .pub-status.success {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .pub-status.error {
+        color: var(--danger);
+      }
+
+      /* Shareable link box */
+      .link-box {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        background: var(--surface2);
+        border: 1px solid var(--publish-border);
+        border-radius: 10px;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .link-box.visible {
+        display: flex;
+      }
+      .link-box-title {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      .link-url {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 8px 10px;
+        font-size: 10px;
+        color: var(--text);
+        font-family: monospace;
+        word-break: break-all;
+        line-height: 1.5;
+      }
+      .link-actions {
+        display: flex;
+        gap: 5px;
+      }
+      .link-btn {
+        flex: 1;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 8px 5px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        letter-spacing: 0.5px;
+      }
+      .link-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .link-btn.accent-bg {
+        background: var(--accent);
+        color: #000;
+        border-color: var(--accent);
+      }
+      .link-btn.accent-bg:hover {
+        opacity: 0.85;
+      }
+      .link-expiry {
+        font-size: 9px;
+        color: var(--text2);
+        text-align: center;
+      }
+
+      /* Platform open buttons */
+      .platform-open-btns {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .platform-open-btns.visible {
+        display: flex;
+      }
+      .plat-open-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        text-decoration: none;
+      }
+      .plat-open-btn:hover {
+        transform: translateX(2px);
+      }
+      .plat-open-btn.tiktok {
+        background: #010101;
+        border-color: #333;
+      }
+      .plat-open-btn.tiktok:hover {
+        border-color: #69c9d0;
+      }
+      .plat-open-btn.instagram {
+        background: linear-gradient(
+          135deg,
+          #833ab4 0%,
+          #fd1d1d 50%,
+          #fcb045 100%
+        );
+        border-color: transparent;
+      }
+      .plat-open-btn.twitter {
+        background: #000;
+        border-color: #333;
+      }
+      .plat-open-btn.twitter:hover {
+        border-color: #1d9bf0;
+      }
+      .plat-open-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .plat-open-text {
+        flex: 1;
+      }
+      .plat-open-name {
+        font-size: 11px;
+        font-weight: 800;
+        color: #fff;
+      }
+      .plat-open-sub {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 1px;
+      }
+      .plat-open-arrow {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+      }
+
+      /* Caption preview in publish */
+      .pub-caption-preview {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 9px;
+        font-size: 10px;
+        color: var(--text);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        max-height: 100px;
+        overflow-y: auto;
+        word-break: break-word;
+      }
+      .pub-caption-row {
+        display: flex;
+        gap: 5px;
+        align-items: flex-start;
+      }
+      .pub-caption-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .pub-copy-btn {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        color: var(--text2);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 6px 8px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        align-self: flex-start;
+      }
+      .pub-copy-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .pub-copy-btn.done {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-dim);
+      }
+
+      /* Zip only mode */
+      .zip-info {
+        font-size: 9px;
+        color: var(--text3);
+        text-align: center;
+        line-height: 1.6;
+        padding: 4px 0;
+      }
+
+      /* TikTok upload instruction modal */
+      .tt-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        animation: fadeIn 0.2s ease;
+      }
+      .tt-modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        width: 100%;
+        max-width: 480px;
+        padding: 20px 20px 32px;
+        position: relative;
+        animation: slideUp 0.25s ease;
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(40px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .tt-modal-close {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--text3);
+        transition: all 0.15s;
+      }
+      .tt-modal-close:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      .tt-modal-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 4px;
+        padding-right: 32px;
+      }
+      .tt-modal-sub {
+        font-size: 10px;
+        color: var(--text3);
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+      .tt-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .tt-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: var(--surface2);
+        border-radius: 9px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+      }
+      .tt-step-num {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #000;
+        font-size: 10px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .tt-step-body {
+        flex: 1;
+      }
+      .tt-step-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+      .tt-step-desc {
+        font-size: 10px;
+        color: var(--text2);
+        line-height: 1.5;
+      }
+      .tt-modal-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .tt-action-btn {
+        flex: 1;
+        padding: 11px 8px;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: none;
+      }
+      .tt-action-primary {
+        background: #010101;
+        color: #69c9d0;
+        border: 1px solid #333;
+      }
+      .tt-action-primary:hover {
+        background: #111;
+        border-color: #69c9d0;
+      }
+      .tt-action-secondary {
+        background: var(--surface2);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .tt-action-secondary:hover {
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
       @media (max-width: 640px) {
@@ -942,7 +1447,22 @@
   </head>
   <body>
     <div class="topbar">
-      <div class="dot"></div>
+      <a
+        href="https://trymentel.com"
+        style="
+          display: inline-flex;
+          align-items: center;
+          text-decoration: none;
+          flex-shrink: 0;
+        "
+      >
+        <img
+          src="/logo.png"
+          alt="Mentel logo"
+          height="61"
+          style="display: block; object-fit: contain; height: 61px; width: auto"
+        />
+      </a>
       <span class="topbar-title">Mentel · Post Generator</span>
       <div class="theme-btn" onclick="toggleTheme()">
         <span id="theme-icon">🌙</span><span id="theme-lbl">Dark</span>
@@ -950,7 +1470,6 @@
     </div>
 
     <div class="main">
-      <!-- PREVIEW -->
       <div class="preview-pane">
         <div class="size-tabs">
           <div
@@ -995,8 +1514,183 @@
         </div>
       </div>
 
-      <!-- CONTROLS -->
       <div class="controls-pane">
+        <!-- ═══════════════════════════════════════════════════════
+             🚀 PUBLISH PANEL  — always visible at the top
+        ════════════════════════════════════════════════════════ -->
+        <div class="panel-section publish-panel" id="sec-publish">
+          <div class="sec-hdr" onclick="toggleSec('sec-publish')">
+            <span class="sec-title">🚀 Publish &amp; Share</span>
+            <span class="sec-arrow">▾</span>
+          </div>
+          <div class="sec-body">
+            <!-- STEP 1: Choose platforms -->
+            <div class="pub-step">
+              <div class="pub-step-label">
+                <div class="pub-step-num">1</div>
+                Choose Platforms
+              </div>
+              <div class="platform-cards">
+                <div
+                  class="platform-card selected"
+                  id="pub-plat-tiktok"
+                  onclick="togglePubPlatform('tiktok', this)"
+                >
+                  <div class="pc-check">✓</div>
+                  <div class="pc-icon">🎵</div>
+                  <div class="pc-name">TikTok</div>
+                  <div class="pc-desc">4:5 Normal + 9:16 Full</div>
+                </div>
+                <div
+                  class="platform-card selected"
+                  id="pub-plat-instagram"
+                  onclick="togglePubPlatform('instagram', this)"
+                >
+                  <div class="pc-check">✓</div>
+                  <div class="pc-icon">📸</div>
+                  <div class="pc-name">Instagram</div>
+                  <div class="pc-desc">Story + Square + 4:5</div>
+                </div>
+                <div
+                  class="platform-card"
+                  id="pub-plat-twitter"
+                  onclick="togglePubPlatform('twitter', this)"
+                >
+                  <div class="pc-check">✓</div>
+                  <div class="pc-icon">𝕏</div>
+                  <div class="pc-name">Twitter/X</div>
+                  <div class="pc-desc">Square post</div>
+                </div>
+                <div
+                  class="platform-card"
+                  id="pub-plat-all"
+                  onclick="togglePubPlatform('all', this)"
+                >
+                  <div class="pc-check">✓</div>
+                  <div class="pc-icon">⚡</div>
+                  <div class="pc-name">All Sizes</div>
+                  <div class="pc-desc">Every format</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pub-divider"></div>
+
+            <!-- STEP 2: Caption -->
+            <div class="pub-step">
+              <div class="pub-step-label">
+                <div class="pub-step-num">2</div>
+                Caption &amp; Hashtags
+              </div>
+              <div class="field">
+                <label>Tone</label>
+                <div class="btn-row">
+                  <div
+                    class="tbtn on"
+                    id="pub-tone-tiktok"
+                    onclick="setPubTone('tiktok', this)"
+                  >
+                    TikTok
+                  </div>
+                  <div
+                    class="tbtn"
+                    id="pub-tone-ig"
+                    onclick="setPubTone('ig', this)"
+                  >
+                    Instagram
+                  </div>
+                  <div
+                    class="tbtn"
+                    id="pub-tone-twitter"
+                    onclick="setPubTone('twitter', this)"
+                  >
+                    Twitter/X
+                  </div>
+                </div>
+              </div>
+              <div class="pub-caption-row">
+                <div class="pub-caption-col">
+                  <div class="pub-caption-preview" id="pub-caption-preview">
+                    Click "Generate Caption" or "Publish" to auto-generate…
+                  </div>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button
+                  class="tbtn"
+                  style="font-size: 9px"
+                  onclick="pubGenerateCaption()"
+                >
+                  ✨ Generate
+                </button>
+                <button
+                  class="pub-copy-btn"
+                  id="pub-copy-caption-btn"
+                  onclick="pubCopyCaption()"
+                >
+                  📋 Copy
+                </button>
+              </div>
+            </div>
+
+            <div class="pub-divider"></div>
+
+            <!-- STEP 3: Publish -->
+            <div class="pub-step">
+              <div class="pub-step-label">
+                <div class="pub-step-num">3</div>
+                Package &amp; Publish
+              </div>
+              <div class="zip-info">
+                Bundles all platform sizes + caption into a ZIP.<br />
+                A shareable download link is generated automatically.
+              </div>
+              <div class="pub-progress-wrap" id="pub-pw">
+                <div class="pub-progress-fill" id="pub-pf"></div>
+              </div>
+              <button
+                class="publish-btn-main"
+                id="pub-main-btn"
+                onclick="publishAll()"
+              >
+                <span id="pub-btn-icon">🚀</span>
+                <span id="pub-btn-text">Create &amp; Publish</span>
+              </button>
+              <div class="pub-status" id="pub-status"></div>
+            </div>
+
+            <!-- RESULT: Shareable link -->
+            <div class="link-box" id="pub-link-box">
+              <div class="link-box-title">📎 Your Download Link</div>
+              <div class="link-url" id="pub-link-url">—</div>
+              <div class="link-actions">
+                <div class="link-btn" onclick="copyLink()">📋 Copy Link</div>
+                <div class="link-btn accent-bg" onclick="downloadZipDirect()">
+                  ⬇ Download ZIP
+                </div>
+                <div
+                  class="link-btn"
+                  onclick="deleteLink()"
+                  style="color: var(--danger); border-color: var(--danger)"
+                >
+                  🗑 Delete
+                </div>
+              </div>
+              <div class="link-expiry" id="pub-link-expiry"></div>
+            </div>
+
+            <!-- RESULT: Open platform buttons -->
+            <div class="platform-open-btns" id="pub-plat-btns">
+              <div class="pub-step-label" style="margin-bottom: 2px">
+                <div class="pub-step-num">4</div>
+                Open &amp; Upload
+              </div>
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+        <!-- END PUBLISH PANEL -->
+
         <!-- POST MODE -->
         <div class="panel-section" id="sec-mode">
           <div class="sec-hdr" onclick="toggleSec('sec-mode')">
@@ -1109,6 +1803,25 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
               </button>
             </div>
             <div class="field">
+              <label>Photo Style</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="photo-bw"
+                  onclick="setPhotoColor('bw', this)"
+                >
+                  ⬛ B&amp;W
+                </div>
+                <div
+                  class="tbtn"
+                  id="photo-color"
+                  onclick="setPhotoColor('color', this)"
+                >
+                  🎨 Color
+                </div>
+              </div>
+            </div>
+            <div class="field">
               <label>Text Alignment</label>
               <div class="btn-row">
                 <div
@@ -1207,8 +1920,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
               </div>
             </div>
             <div class="field" id="cta-follow-row">
-              <label>Text</label
-              ><input
+              <label>Text</label>
+              <input
                 type="text"
                 id="cta-follow-txt"
                 value="Follow for more →"
@@ -1216,21 +1929,21 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
               />
             </div>
             <div class="field" id="cta-assess-row" style="display: none">
-              <label>Assessment Link / Text</label
-              ><input
+              <label>Assessment Link / Text</label>
+              <input
                 type="text"
                 id="cta-assess-txt"
                 value="Take the free quiz → mentel.com/quiz"
                 oninput="redraw()"
               />
-              <p class="hint">
-                💡 Short link or link-in-bio path — displays as readable text on
+              <p class="hint" style="margin-top: 4px">
+                💡 Short link or link-in-bio — displays as readable text on the
                 image.
               </p>
             </div>
             <div class="field" id="cta-website-row" style="display: none">
-              <label>Website Text</label
-              ><input
+              <label>Website Text</label>
+              <input
                 type="text"
                 id="cta-website-txt"
                 value="Learn more → mentel.com"
@@ -1238,8 +1951,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
               />
             </div>
             <div class="field" id="cta-custom-row" style="display: none">
-              <label>Custom CTA</label
-              ><input
+              <label>Custom CTA</label>
+              <input
                 type="text"
                 id="cta-custom-txt"
                 value=""
@@ -1258,7 +1971,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
           <div class="sec-body">
             <p class="hint">
-              Auto-generate a ready-to-paste caption with hashtags from your
+              Generate a ready-to-paste caption with hashtags from your
               headline.
             </p>
             <div class="field">
@@ -1378,8 +2091,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
           <div class="sec-body">
             <div class="field">
-              <label>Brand Name</label
-              ><input
+              <label>Brand Name</label>
+              <input
                 type="text"
                 id="brandname"
                 value="MENTEL"
@@ -1485,7 +2198,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
             <span class="sec-title">Style</span><span class="sec-arrow">▾</span>
           </div>
           <div class="sec-body">
-            <!-- Background type (no photo) -->
             <div class="field">
               <label>Background (when no photo)</label>
               <div class="btn-row">
@@ -1515,27 +2227,20 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   oninput="redraw()"
                 />
                 <span style="font-size: 10px; color: var(--text2)"
-                  >Background fill color</span
+                  >Fill color</span
                 >
               </div>
             </div>
             <div class="field" id="bg-gradient-row" style="display: none">
-              <label>Gradient Colors</label>
-              <div
-                style="
-                  display: flex;
-                  gap: 8px;
-                  align-items: center;
-                  flex-wrap: wrap;
-                "
-              >
+              <label>Gradient — From → To</label>
+              <div style="display: flex; gap: 8px; align-items: center">
                 <input
                   type="color"
                   id="bg-grad-from"
                   value="#0d1b2a"
                   oninput="redraw()"
                 />
-                <span style="font-size: 10px; color: var(--text2)">→</span>
+                <span style="font-size: 12px; color: var(--text2)">→</span>
                 <input
                   type="color"
                   id="bg-grad-to"
@@ -1543,34 +2248,31 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   oninput="redraw()"
                 />
               </div>
-              <div class="field" style="margin-top: 4px">
-                <label>Direction</label>
-                <div class="btn-row">
-                  <div
-                    class="tbtn on"
-                    id="grad-tb"
-                    onclick="setGradDir('tb', this)"
-                  >
-                    ↓ Top→Bot
-                  </div>
-                  <div
-                    class="tbtn"
-                    id="grad-diag"
-                    onclick="setGradDir('diag', this)"
-                  >
-                    ↗ Diagonal
-                  </div>
-                  <div
-                    class="tbtn"
-                    id="grad-radial"
-                    onclick="setGradDir('radial', this)"
-                  >
-                    ◎ Radial
-                  </div>
+              <label style="margin-top: 4px">Direction</label>
+              <div class="btn-row">
+                <div
+                  class="tbtn on"
+                  id="grad-tb"
+                  onclick="setGradDir('tb', this)"
+                >
+                  ↓ Top→Bot
+                </div>
+                <div
+                  class="tbtn"
+                  id="grad-diag"
+                  onclick="setGradDir('diag', this)"
+                >
+                  ↗ Diagonal
+                </div>
+                <div
+                  class="tbtn"
+                  id="grad-radial"
+                  onclick="setGradDir('radial', this)"
+                >
+                  ◎ Radial
                 </div>
               </div>
             </div>
-
             <div class="field">
               <label>Headline Font Size — <span id="fsval">62</span> px</label>
               <div class="range-wrap">
@@ -1587,7 +2289,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 />
               </div>
             </div>
-
             <div class="field">
               <label>Overlay Darkness — <span id="darkval">65</span>%</label>
               <div class="range-wrap">
@@ -1605,14 +2306,12 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 />
               </div>
             </div>
-
-            <!-- TEXT COLOR -->
             <div class="field">
               <label>Headline Color</label>
               <div class="txt-color-row">
                 <div
                   class="txt-swatch on"
-                  style="background: #ffffff; border: 1px solid #444"
+                  style="background: #ffffff; border: 1px solid #555"
                   data-color="#ffffff"
                   onclick="setTextColor('#ffffff', this)"
                   title="White"
@@ -1626,11 +2325,11 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 ></div>
                 <div
                   class="txt-swatch"
-                  id="txt-swatch-accent"
                   style="background: #2fbf71"
+                  id="txt-swatch-accent"
                   data-color="accent"
                   onclick="setTextColor('accent', this)"
-                  title="Accent"
+                  title="Accent color"
                 ></div>
                 <div
                   class="txt-swatch"
@@ -1644,7 +2343,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   style="background: #b0c4de"
                   data-color="#b0c4de"
                   onclick="setTextColor('#b0c4de', this)"
-                  title="Light blue"
+                  title="Sky blue"
                 ></div>
                 <input
                   type="color"
@@ -1656,8 +2355,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 />
               </div>
             </div>
-
-            <!-- ACCENT COLOR -->
             <div class="field">
               <label>Accent Color</label>
               <div class="swatches">
@@ -1701,7 +2398,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
         </div>
 
-        <!-- CAROUSEL SLIDE NUMBERING -->
+        <!-- SLIDE NUMBERING -->
         <div class="panel-section" id="sec-slidenum">
           <div class="sec-hdr" onclick="toggleSec('sec-slidenum')">
             <span class="sec-title">Slide Numbering</span
@@ -1730,7 +2427,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   id="sn-label"
                   onclick="setSlideNumStyle('label', this)"
                 >
-                  Slide 1 Label
+                  Slide 1
                 </div>
                 <div
                   class="tbtn"
@@ -1741,7 +2438,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 </div>
               </div>
             </div>
-            <div class="field" id="sn-position-row">
+            <div class="field">
               <label>Position</label>
               <div class="btn-row">
                 <div
@@ -1760,9 +2457,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 </div>
               </div>
             </div>
-            <p class="hint">
-              Only visible in Carousel mode. Applied to exported images.
-            </p>
+            <p class="hint">Only visible in Carousel mode.</p>
           </div>
         </div>
 
@@ -1777,7 +2472,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
               Set any size for Pinterest, LinkedIn, YouTube thumbnail, etc.
             </p>
             <div class="field">
-              <label>Dimensions (px)</label>
+              <label>Width × Height (px)</label>
               <div class="custom-size-row">
                 <input
                   type="number"
@@ -1785,7 +2480,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   value="1080"
                   min="100"
                   max="4096"
-                  oninput="redraw()"
                 />
                 <span class="custom-size-sep">×</span>
                 <input
@@ -1794,7 +2488,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                   value="1080"
                   min="100"
                   max="4096"
-                  oninput="redraw()"
                 />
               </div>
             </div>
@@ -1821,7 +2514,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
         </div>
 
-        <!-- PRESETS -->
+        <!-- SAVED PRESETS -->
         <div class="panel-section" id="sec-presets">
           <div class="sec-hdr" onclick="toggleSec('sec-presets')">
             <span class="sec-title">💾 Saved Presets</span
@@ -1829,8 +2522,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
           <div class="sec-body">
             <p class="hint">
-              Save your current style settings (colors, font size, darkness,
-              CTA, handle) to reuse later.
+              Save your current style settings to reuse later. Stored in your
+              browser.
             </p>
             <div class="field">
               <label>Preset Name</label>
@@ -1838,7 +2531,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 type="text"
                 id="preset-name"
                 placeholder="e.g. Mentel Dark Theme"
-                value=""
               />
             </div>
             <button class="btn-secondary" onclick="savePreset()">
@@ -1943,6 +2635,9 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
                 </div>
               </div>
             </div>
+            <p class="hint" id="export-note">
+              In carousel mode all slides export per size, numbered.
+            </p>
             <div class="prog-wrap" id="pw">
               <div class="prog-fill" id="pf"></div>
             </div>
@@ -1953,21 +2648,30 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           </div>
         </div>
       </div>
-      <!-- /controls -->
     </div>
-    <!-- /main -->
 
     <script>
-      // ═══════════════════════════════════════════════════════════════
-      //  STATE
-      // ═══════════════════════════════════════════════════════════════
+      // ── STATE ──────────────────────────────────────────────────────
       let accentColor = "#2fbf71";
-      let textColor = "#ffffff"; // NEW: headline text color
-      let bgType = "solid"; // NEW: 'solid' | 'gradient'
-      let gradDir = "tb"; // NEW: 'tb' | 'diag' | 'radial'
-      let slideNumStyle = "dots"; // NEW: 'dots' | 'text' | 'label' | 'none'
-      let slideNumPos = "bottom"; // NEW: 'bottom' | 'top'
-      let capTone = "tiktok"; // NEW: caption platform tone
+      let textColor = "#ffffff";
+      let bgType = "solid";
+      let photoColorMode = "bw"; // 'bw' | 'color'
+
+      function setPhotoColor(mode, el) {
+        photoColorMode = mode;
+        document
+          .getElementById("photo-bw")
+          .classList.toggle("on", mode === "bw");
+        document
+          .getElementById("photo-color")
+          .classList.toggle("on", mode === "color");
+        redraw();
+        if (postMode === "carousel") renderSlideList();
+      }
+      let gradDir = "tb";
+      let slideNumStyle = "dots";
+      let slideNumPos = "bottom";
+      let capTone = "tiktok";
       let fmt = "png";
       let ttMode = "text";
       let textAlign = "left";
@@ -2009,9 +2713,708 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         return slides[currentSlide];
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  SLIDE MANAGEMENT
-      // ═══════════════════════════════════════════════════════════════
+      // ── PUBLISH STATE ──────────────────────────────────────────────
+      let pubPlatforms = new Set(["tiktok", "instagram"]);
+      let pubTone = "tiktok";
+      let pubZipBlob = null;
+      let pubLinkUrl = "";
+      let pubCaptionText = "";
+
+      // ── SAFE STORAGE ───────────────────────────────────────────────
+      function lsGet(k) {
+        try {
+          return localStorage.getItem(k);
+        } catch (e) {
+          return null;
+        }
+      }
+      function lsSet(k, v) {
+        try {
+          localStorage.setItem(k, v);
+        } catch (e) {}
+      }
+
+      // ── PUBLISH: PLATFORM SELECTION ────────────────────────────────
+      function togglePubPlatform(id, el) {
+        if (id === "all") {
+          // Toggle all
+          if (pubPlatforms.size === 4) {
+            pubPlatforms.clear();
+            document
+              .querySelectorAll(".platform-card")
+              .forEach((c) => c.classList.remove("selected"));
+          } else {
+            pubPlatforms = new Set(["tiktok", "instagram", "twitter", "all"]);
+            document
+              .querySelectorAll(".platform-card")
+              .forEach((c) => c.classList.add("selected"));
+          }
+          return;
+        }
+        if (pubPlatforms.has(id)) {
+          pubPlatforms.delete(id);
+          el.classList.remove("selected");
+        } else {
+          pubPlatforms.add(id);
+          el.classList.add("selected");
+        }
+      }
+
+      // ── PUBLISH: TONE ─────────────────────────────────────────────
+      function setPubTone(t, el) {
+        pubTone = t;
+        ["pub-tone-tiktok", "pub-tone-ig", "pub-tone-twitter"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+        // Also sync with cap tone
+        capTone = t;
+        // Regenerate preview if already has content
+        const prev = document.getElementById("pub-caption-preview");
+        if (prev.textContent && !prev.textContent.startsWith("Click")) {
+          pubGenerateCaption();
+        }
+      }
+
+      // ── PUBLISH: CAPTION GENERATION ───────────────────────────────
+      const MH_HASHTAGS = [
+        "#MentalHealth",
+        "#MentalHealthAwareness",
+        "#Psychology",
+        "#SelfCare",
+        "#Mindset",
+        "#MentalHealthMatters",
+        "#Therapy",
+        "#WellBeing",
+        "#EmotionalHealth",
+        "#Mentel",
+        "#MentalHealthTips",
+        "#PersonalityTypes",
+        "#MindfulLiving",
+        "#SelfAwareness",
+        "#InnerPeace",
+        "#HealingJourney",
+        "#BreakTheStigma",
+        "#MentalHealthAdvocate",
+      ];
+
+      function buildCaption(tone) {
+        const headline = document.getElementById("txt").value.trim();
+        const tag = document.getElementById("tag").value.trim();
+        const cta = getCTAText();
+        const m = PLATFORM_META[platform];
+        const handleStr =
+          platform !== "none" && m.handle ? `${m.prefix}${m.handle}` : "Mentel";
+        const shuffled = [...MH_HASHTAGS].sort(() => Math.random() - 0.5);
+        const tags = shuffled.slice(0, 9).join(" ");
+        if (tone === "tiktok") {
+          return `${headline}\n\n${tag ? `${tag} | ` : ""}Drop a ✅ if this sounds like you!\n\n${cta ? `👉 ${cta}\n\n` : ""}${handleStr} · Mental health facts you need to know\n\n${tags}`;
+        } else if (tone === "ig") {
+          return `💭 ${headline}\n\n${tag ? `[${tag}]\n\n` : ""}This concept is changing how psychiatrists understand personality. Save this post to share with someone who needs to hear it.\n\n${cta ? `→ ${cta}\n\n` : ""}Follow ${handleStr} for more mental health insights.\n\n.\n.\n.\n${tags}`;
+        } else {
+          const short =
+            headline.length > 200 ? headline.slice(0, 197) + "…" : headline;
+          return `${short}\n\n${cta ? `${cta}\n` : ""}${tags.split(" ").slice(0, 5).join(" ")}`;
+        }
+      }
+
+      function pubGenerateCaption() {
+        pubCaptionText = buildCaption(pubTone);
+        document.getElementById("pub-caption-preview").textContent =
+          pubCaptionText;
+        document
+          .getElementById("pub-copy-caption-btn")
+          .classList.remove("done");
+        document.getElementById("pub-copy-caption-btn").textContent = "📋 Copy";
+      }
+
+      function pubCopyCaption() {
+        if (!pubCaptionText) {
+          pubGenerateCaption();
+        }
+        const btn = document.getElementById("pub-copy-caption-btn");
+        const done = () => {
+          btn.textContent = "✅ Copied!";
+          btn.classList.add("done");
+          setTimeout(() => {
+            btn.textContent = "📋 Copy";
+            btn.classList.remove("done");
+          }, 2000);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard
+            .writeText(pubCaptionText)
+            .then(done)
+            .catch(() => fallbackCopy(pubCaptionText, done));
+        } else {
+          fallbackCopy(pubCaptionText, done);
+        }
+      }
+
+      // ── PUBLISH: MAIN FUNCTION ─────────────────────────────────────
+      async function publishAll() {
+        slides[currentSlide].headline = document.getElementById("txt").value;
+
+        // Generate caption first
+        pubGenerateCaption();
+
+        const btn = document.getElementById("pub-main-btn");
+        const statusEl = document.getElementById("pub-status");
+        const pw = document.getElementById("pub-pw");
+        const pf = document.getElementById("pub-pf");
+
+        btn.disabled = true;
+        document.getElementById("pub-btn-text").textContent = "Rendering…";
+        document.getElementById("pub-btn-icon").textContent = "⏳";
+        pw.style.display = "block";
+        statusEl.textContent = "Generating images…";
+        statusEl.className = "pub-status";
+
+        // Hide previous results
+        document.getElementById("pub-link-box").classList.remove("visible");
+        document.getElementById("pub-plat-btns").classList.remove("visible");
+
+        try {
+          // Detect iOS / mobile Safari
+          const isIOS =
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+          const isMobile = isIOS || /Android|Mobile/i.test(navigator.userAgent);
+
+          const sizesToRender = getPlatformSizes();
+          const slidesToExport =
+            postMode === "carousel" ? slides : [getSlide()];
+          const totalFiles = sizesToRender.length * slidesToExport.length;
+          let done = 0;
+
+          const mimeMap = {
+            png: "image/png",
+            jpeg: "image/jpeg",
+            webp: "image/webp",
+          };
+          const extMap = { png: "png", jpeg: "jpg", webp: "webp" };
+          const ext = extMap[fmt];
+
+          // Render all images into memory
+          const renderedFiles = []; // { name, dataUrl, blob }
+          for (const sz of sizesToRender) {
+            const isTT = sz.lbl.toLowerCase().includes("tiktok");
+            for (let si = 0; si < slidesToExport.length; si++) {
+              const sfx = postMode === "carousel" ? `_slide${si + 1}` : "";
+              const fname = `mentel_${sz.lbl}${sfx}_${sz.w}x${sz.h}.${ext}`;
+              statusEl.textContent = `Rendering ${sz.lbl}${sfx}… (${done + 1}/${totalFiles})`;
+              pf.style.width = (done / totalFiles) * 60 + "%";
+              await new Promise((r) => setTimeout(r, 20));
+              const off = document.createElement("canvas");
+              drawCard(off, sz.w, sz.h, isTT, slidesToExport[si]);
+              const dataUrl = off.toDataURL(
+                mimeMap[fmt],
+                fmt === "png" ? 1.0 : 0.93,
+              );
+              const base64 = dataUrl.split(",")[1];
+              const byteChars = atob(base64);
+              const byteArr = new Uint8Array(byteChars.length);
+              for (let b = 0; b < byteChars.length; b++)
+                byteArr[b] = byteChars.charCodeAt(b);
+              const blob = new Blob([byteArr], { type: mimeMap[fmt] });
+              renderedFiles.push({ name: fname, dataUrl, blob, base64 });
+              done++;
+            }
+          }
+
+          const captionContent = `CAPTION FOR YOUR POST\n${"=".repeat(40)}\n\n${pubCaptionText}\n\n${"=".repeat(40)}\nGenerated by Mentel Post Generator\nhttps://content.trymentel.com/post-generator`;
+
+          pf.style.width = "65%";
+
+          if (isMobile) {
+            // ── MOBILE / iOS: download files one by one ──────────────
+            statusEl.textContent = "Downloading files one by one…";
+            await new Promise((r) => setTimeout(r, 100));
+
+            // Upload each image to file.io and collect links
+            const fileLinks = [];
+            let uploadedCount = 0;
+            for (const f of renderedFiles) {
+              statusEl.textContent = `Uploading ${f.name}… (${uploadedCount + 1}/${renderedFiles.length})`;
+              pf.style.width =
+                65 + (uploadedCount / renderedFiles.length) * 25 + "%";
+              try {
+                const fd = new FormData();
+                fd.append("file", f.blob, f.name);
+                const r = await fetch("https://file.io/?expires=7d", {
+                  method: "POST",
+                  body: fd,
+                });
+                if (r.ok) {
+                  const d = await r.json();
+                  if (d.success && d.link) {
+                    fileLinks.push({ name: f.name, link: d.link });
+                    uploadedCount++;
+                    continue;
+                  }
+                }
+              } catch (e) {}
+              // Upload failed — fall back to direct download for this file
+              const a = document.createElement("a");
+              a.href = f.dataUrl;
+              a.download = f.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              await new Promise((r) => setTimeout(r, 400));
+              fileLinks.push({ name: f.name, link: null });
+              uploadedCount++;
+            }
+
+            pf.style.width = "100%";
+
+            // Show individual links
+            showMobileLinks(fileLinks, captionContent);
+            statusEl.textContent = `✅ ${renderedFiles.length} file${renderedFiles.length > 1 ? "s" : ""} ready!`;
+            statusEl.className = "pub-status success";
+          } else {
+            // ── DESKTOP: ZIP + single file.io link ───────────────────
+            const zip = new JSZip();
+            for (const f of renderedFiles) {
+              zip.file(f.name, f.base64, { base64: true });
+            }
+            zip.file("caption_and_hashtags.txt", captionContent);
+
+            statusEl.textContent = "Bundling ZIP…";
+            pf.style.width = "78%";
+            await new Promise((r) => setTimeout(r, 50));
+
+            pubZipBlob = await zip.generateAsync({
+              type: "blob",
+              compression: "DEFLATE",
+              compressionOptions: { level: 6 },
+            });
+
+            statusEl.textContent = "Uploading for shareable link…";
+            pf.style.width = "88%";
+            await new Promise((r) => setTimeout(r, 30));
+
+            let linkGenerated = false;
+            try {
+              const formData = new FormData();
+              formData.append("file", pubZipBlob, "mentel_post_package.zip");
+              const resp = await fetch("https://file.io/?expires=7d", {
+                method: "POST",
+                body: formData,
+              });
+              if (resp.ok) {
+                const data = await resp.json();
+                if (data.success && data.link) {
+                  pubLinkUrl = data.link;
+                  linkGenerated = true;
+                }
+              }
+            } catch (uploadErr) {
+              /* silent fallback to direct download */
+            }
+
+            pf.style.width = "100%";
+            await new Promise((r) => setTimeout(r, 200));
+
+            if (linkGenerated) {
+              const linkBox = document.getElementById("pub-link-box");
+              linkBox.classList.add("visible");
+              document.getElementById("pub-link-url").textContent = pubLinkUrl;
+              document.getElementById("pub-link-expiry").textContent =
+                "⏱ Auto-deletes after first download or 7 days · file.io";
+              statusEl.textContent = "✅ Ready! Shareable link generated.";
+              statusEl.className = "pub-status success";
+            } else {
+              statusEl.textContent = "✅ ZIP ready — downloading now.";
+              statusEl.className = "pub-status success";
+              triggerZipDownload();
+            }
+          }
+
+          showPlatformOpenButtons();
+          pubCopyCaption();
+        } catch (err) {
+          statusEl.textContent = "⚠ Error: " + err.message;
+          statusEl.className = "pub-status error";
+        } finally {
+          btn.disabled = false;
+          document.getElementById("pub-btn-text").textContent =
+            "Create & Publish";
+          document.getElementById("pub-btn-icon").textContent = "🚀";
+          setTimeout(() => {
+            pw.style.display = "none";
+            pf.style.width = "0%";
+          }, 800);
+        }
+      }
+
+      function getPlatformSizes() {
+        const sizes = [];
+        const all = pubPlatforms.has("all");
+        if (all || pubPlatforms.has("tiktok")) {
+          sizes.push({ w: 1080, h: 1350, lbl: "TikTok-Normal-4x5" }); // 4:5 portrait ✅
+          sizes.push({ w: 1080, h: 1920, lbl: "TikTok-Full-9x16" }); // 9:16 full
+        }
+        if (all || pubPlatforms.has("instagram")) {
+          sizes.push({ w: 1080, h: 1920, lbl: "IG-Story-9x16" });
+          sizes.push({ w: 1080, h: 1080, lbl: "IG-Square-1x1" });
+          sizes.push({ w: 1080, h: 1350, lbl: "IG-Portrait-4x5" });
+        }
+        if (all || pubPlatforms.has("twitter")) {
+          sizes.push({ w: 1080, h: 1080, lbl: "Twitter-Square-1x1" });
+        }
+        // Deduplicate strictly by label (different platforms keep their own copy)
+        const seen = new Set();
+        return sizes.filter((s) => {
+          if (seen.has(s.lbl)) return false;
+          seen.add(s.lbl);
+          return true;
+        });
+      }
+
+      function triggerZipDownload() {
+        if (!pubZipBlob) return;
+        const url = URL.createObjectURL(pubZipBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `mentel_post_package_${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+
+      function downloadZipDirect() {
+        triggerZipDownload();
+      }
+
+      function copyLink() {
+        if (!pubLinkUrl) return;
+        const btn = event.target;
+        const done = () => {
+          const orig = btn.textContent;
+          btn.textContent = "✅ Copied!";
+          setTimeout(() => {
+            btn.textContent = orig;
+          }, 2000);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard
+            .writeText(pubLinkUrl)
+            .then(done)
+            .catch(() => fallbackCopy(pubLinkUrl, done));
+        } else {
+          fallbackCopy(pubLinkUrl, done);
+        }
+      }
+
+      function deleteLink() {
+        // file.io links auto-expire; just clear the UI
+        pubLinkUrl = "";
+        pubZipBlob = null;
+        document.getElementById("pub-link-box").classList.remove("visible");
+        document.getElementById("pub-plat-btns").classList.remove("visible");
+        document.getElementById("pub-status").textContent =
+          "🗑 Link cleared from view.";
+        document.getElementById("pub-status").className = "pub-status";
+        setTimeout(() => {
+          document.getElementById("pub-status").textContent = "";
+        }, 2500);
+      }
+
+      function showMobileLinks(fileLinks, captionContent) {
+        const linkBox = document.getElementById("pub-link-box");
+        linkBox.classList.add("visible");
+
+        // Build per-file link list
+        const hasLinks = fileLinks.some((f) => f.link);
+        if (hasLinks) {
+          document.getElementById("pub-link-url").innerHTML = "";
+          const title = document.querySelector("#pub-link-box .link-box-title");
+          title.textContent = "📎 Your Image Links";
+
+          const urlEl = document.getElementById("pub-link-url");
+          urlEl.innerHTML = "";
+          urlEl.style.fontFamily = "inherit";
+          urlEl.style.fontSize = "10px";
+
+          fileLinks.forEach((f) => {
+            const row = document.createElement("div");
+            row.style.cssText =
+              "display:flex;align-items:center;gap:6px;margin-bottom:5px;";
+            const nameEl = document.createElement("span");
+            nameEl.style.cssText =
+              "flex:1;font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+            nameEl.textContent = f.name;
+            const btn = document.createElement("a");
+            if (f.link) {
+              btn.href = f.link;
+              btn.target = "_blank";
+              btn.rel = "noopener noreferrer";
+              btn.textContent = "⬇ Open";
+              btn.style.cssText =
+                "flex-shrink:0;background:var(--accent);color:#000;font-size:9px;font-weight:800;padding:4px 9px;border-radius:5px;text-decoration:none;";
+            } else {
+              btn.textContent = "✓ Downloaded";
+              btn.style.cssText =
+                "flex-shrink:0;color:var(--accent);font-size:9px;font-weight:700;";
+            }
+            row.append(nameEl, btn);
+            urlEl.appendChild(row);
+          });
+
+          // Caption link too
+          const capRow = document.createElement("div");
+          capRow.style.cssText =
+            "margin-top:4px;padding-top:6px;border-top:1px solid var(--border);font-size:9px;color:var(--accent);font-weight:700;";
+          capRow.textContent = "📋 Caption auto-copied to clipboard";
+          urlEl.appendChild(capRow);
+
+          document.getElementById("pub-link-expiry").textContent =
+            "⏱ Each link auto-deletes after download · file.io";
+
+          // Hide the ZIP download button since we're on mobile
+          const zipBtn = linkBox.querySelector(".link-btn.accent-bg");
+          if (zipBtn) zipBtn.style.display = "none";
+        } else {
+          // All failed uploads — files were downloaded directly
+          document.getElementById("pub-link-url").textContent =
+            "Files downloaded directly to your device.";
+          document.getElementById("pub-link-expiry").textContent =
+            "Check your Downloads folder or Photos app.";
+        }
+      }
+
+      function showPlatformOpenButtons() {
+        const isIOS =
+          /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isMobile = isIOS || isAndroid;
+
+        const container = document.getElementById("pub-plat-btns");
+        container.innerHTML = "";
+
+        const label = document.createElement("div");
+        label.className = "pub-step-label";
+        label.style.marginBottom = "4px";
+        label.innerHTML = '<div class="pub-step-num">4</div> Open &amp; Upload';
+        container.appendChild(label);
+
+        const hint = document.createElement("div");
+        hint.style.cssText =
+          "font-size:9px;color:var(--text2);line-height:1.5;margin-bottom:6px";
+        hint.textContent = isMobile
+          ? "Caption copied to clipboard. Save images from your links above, then tap a platform below."
+          : "Caption copied to clipboard. Download your images then open a platform to upload.";
+        container.appendChild(hint);
+
+        // ── TikTok ──────────────────────────────────────────────────
+        if (pubPlatforms.has("tiktok") || pubPlatforms.has("all")) {
+          const ttBtn = document.createElement("div");
+          ttBtn.className = "plat-open-btn tiktok";
+          ttBtn.style.cursor = "pointer";
+          ttBtn.innerHTML = `
+            <span class="plat-open-icon">🎵</span>
+            <span class="plat-open-text">
+              <div class="plat-open-name">Post to TikTok</div>
+              <div class="plat-open-sub">${isMobile ? "Opens TikTok app → tap + → Photo" : "Step-by-step guide to post photo"}</div>
+            </span>
+            <span class="plat-open-arrow">→</span>`;
+          ttBtn.onclick = () => {
+            if (isMobile) {
+              // Deep link: try to open TikTok app directly to camera/create
+              window.location.href = "tiktok://";
+              // Fallback after 1.5s — open App Store / Play Store
+              setTimeout(() => {
+                const storeUrl = isIOS
+                  ? "https://apps.apple.com/app/tiktok/id835599320"
+                  : "https://play.google.com/store/apps/details?id=com.zhiliaoapp.musically";
+                window.open(storeUrl, "_blank");
+              }, 1500);
+            } else {
+              showTikTokModal();
+            }
+          };
+          container.appendChild(ttBtn);
+        }
+
+        // ── Instagram ────────────────────────────────────────────────
+        if (pubPlatforms.has("instagram") || pubPlatforms.has("all")) {
+          const igA = document.createElement("a");
+          // On mobile try deep link, on desktop go to instagram.com
+          igA.href = isMobile ? "instagram://" : "https://www.instagram.com/";
+          if (isMobile) {
+            igA.onclick = (e) => {
+              e.preventDefault();
+              window.location.href = "instagram://";
+              setTimeout(() => {
+                const storeUrl = isIOS
+                  ? "https://apps.apple.com/app/instagram/id389801252"
+                  : "https://play.google.com/store/apps/details?id=com.instagram.android";
+                window.open(storeUrl, "_blank");
+              }, 1500);
+            };
+          } else {
+            igA.target = "_blank";
+            igA.rel = "noopener noreferrer";
+          }
+          igA.className = "plat-open-btn instagram";
+          igA.innerHTML = `
+            <span class="plat-open-icon">📸</span>
+            <span class="plat-open-text">
+              <div class="plat-open-name">Open Instagram</div>
+              <div class="plat-open-sub">${isMobile ? "Opens app → tap + → Post or Story" : "Upload from creator studio or mobile app"}</div>
+            </span>
+            <span class="plat-open-arrow">→</span>`;
+          container.appendChild(igA);
+        }
+
+        // ── Twitter/X ────────────────────────────────────────────────
+        if (pubPlatforms.has("twitter") || pubPlatforms.has("all")) {
+          const twA = document.createElement("a");
+          twA.href = isMobile ? "twitter://" : "https://x.com/compose/post";
+          if (isMobile) {
+            twA.onclick = (e) => {
+              e.preventDefault();
+              window.location.href = "twitter://";
+              setTimeout(() => {
+                window.open(
+                  isIOS
+                    ? "https://apps.apple.com/app/x/id333903271"
+                    : "https://play.google.com/store/apps/details?id=com.twitter.android",
+                  "_blank",
+                );
+              }, 1500);
+            };
+          } else {
+            twA.target = "_blank";
+            twA.rel = "noopener noreferrer";
+          }
+          twA.className = "plat-open-btn twitter";
+          twA.innerHTML = `
+            <span class="plat-open-icon">𝕏</span>
+            <span class="plat-open-text">
+              <div class="plat-open-name">Post on Twitter/X</div>
+              <div class="plat-open-sub">Compose new post, paste caption &amp; attach image</div>
+            </span>
+            <span class="plat-open-arrow">→</span>`;
+          container.appendChild(twA);
+        }
+
+        container.classList.add("visible");
+      }
+
+      function showTikTokModal() {
+        // Remove any existing modal
+        const existing = document.getElementById("tt-modal-backdrop");
+        if (existing) existing.remove();
+
+        const backdrop = document.createElement("div");
+        backdrop.className = "tt-modal-backdrop";
+        backdrop.id = "tt-modal-backdrop";
+        backdrop.onclick = (e) => {
+          if (e.target === backdrop) backdrop.remove();
+        };
+
+        backdrop.innerHTML = `
+          <div class="tt-modal">
+            <div class="tt-modal-close" onclick="document.getElementById('tt-modal-backdrop').remove()">✕</div>
+            <div class="tt-modal-title">🎵 How to post photos on TikTok</div>
+            <div class="tt-modal-sub">TikTok's web uploader only accepts videos. To post your image, use the TikTok mobile app — it takes 30 seconds.</div>
+            <div class="tt-steps">
+              <div class="tt-step">
+                <div class="tt-step-num">1</div>
+                <div class="tt-step-body">
+                  <div class="tt-step-title">Save your image</div>
+                  <div class="tt-step-desc">Download your TikTok-Normal (4:5) or TikTok-Full (9:16) image using the links above. Save it to your Photos / Camera Roll.</div>
+                </div>
+              </div>
+              <div class="tt-step">
+                <div class="tt-step-num">2</div>
+                <div class="tt-step-body">
+                  <div class="tt-step-title">Open TikTok app → tap <strong style="color:var(--accent)">＋</strong></div>
+                  <div class="tt-step-desc">In the TikTok app tap the <strong>+</strong> button at the bottom center of the screen.</div>
+                </div>
+              </div>
+              <div class="tt-step">
+                <div class="tt-step-num">3</div>
+                <div class="tt-step-body">
+                  <div class="tt-step-title">Select "Upload" → choose "Photo"</div>
+                  <div class="tt-step-desc">Tap <strong>Upload</strong> (bottom right), then switch from Video to <strong>Photo</strong> at the top. Select your saved image.</div>
+                </div>
+              </div>
+              <div class="tt-step">
+                <div class="tt-step-num">4</div>
+                <div class="tt-step-body">
+                  <div class="tt-step-title">Paste your caption &amp; hashtags</div>
+                  <div class="tt-step-desc">Your caption is already copied to your clipboard — just long-press the description field and tap <strong>Paste</strong>.</div>
+                </div>
+              </div>
+            </div>
+            <div class="tt-modal-actions">
+              <a class="tt-action-btn tt-action-primary" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">
+                🎵 Open TikTok
+              </a>
+              <div class="tt-action-btn tt-action-secondary" onclick="document.getElementById('tt-modal-backdrop').remove()">
+                Got it
+              </div>
+            </div>
+          </div>`;
+
+        document.body.appendChild(backdrop);
+      }
+
+      // ── CAPTION (original panel) ───────────────────────────────────
+      function setCapTone(t, el) {
+        capTone = t;
+        ["cap-tiktok", "cap-ig", "cap-twitter"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+      }
+      function generateCaption() {
+        const caption = buildCaption(capTone);
+        document.getElementById("caption-output").style.display = "";
+        document.getElementById("caption-text").textContent = caption;
+        document.getElementById("copy-btn").classList.remove("copied");
+        document.getElementById("copy-btn").textContent = "📋 Copy";
+      }
+      function copyCaption() {
+        const txt = document.getElementById("caption-text").textContent;
+        const btn = document.getElementById("copy-btn");
+        const done = () => {
+          btn.textContent = "✅ Copied!";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = "📋 Copy";
+            btn.classList.remove("copied");
+          }, 2000);
+        };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard
+            .writeText(txt)
+            .then(done)
+            .catch(() => fallbackCopy(txt, done));
+        } else {
+          fallbackCopy(txt, done);
+        }
+      }
+      function fallbackCopy(txt, cb) {
+        const ta = document.createElement("textarea");
+        ta.value = txt;
+        ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+          document.execCommand("copy");
+          cb();
+        } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      // ── SLIDES ─────────────────────────────────────────────────────
       function addSlide() {
         slides[currentSlide].headline = document.getElementById("txt").value;
         slides.push({
@@ -2076,15 +3479,38 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
             const sc = Math.max(60 / s.bgImg.width, 60 / s.bgImg.height);
             const sw = s.bgImg.width * sc,
               sh = s.bgImg.height * sc;
-            tctx.filter = "grayscale(100%) brightness(0.55)";
-            tctx.drawImage(
-              s.bgImg,
-              -((sw - 60) * s.imgOffsetX),
-              -((sh - 60) * s.imgOffsetY),
-              sw,
-              sh,
-            );
-            tctx.filter = "none";
+            if (photoColorMode === "bw") {
+              const oc2 = document.createElement("canvas");
+              oc2.width = 60;
+              oc2.height = 60;
+              const oc2x = oc2.getContext("2d");
+              oc2x.drawImage(
+                s.bgImg,
+                -((sw - 60) * s.imgOffsetX),
+                -((sh - 60) * s.imgOffsetY),
+                sw,
+                sh,
+              );
+              const id2 = oc2x.getImageData(0, 0, 60, 60);
+              const d2 = id2.data;
+              for (let i = 0; i < d2.length; i += 4) {
+                let g = d2[i] * 0.299 + d2[i + 1] * 0.587 + d2[i + 2] * 0.114;
+                g = Math.min(255, g * 0.55);
+                d2[i] = d2[i + 1] = d2[i + 2] = g;
+              }
+              oc2x.putImageData(id2, 0, 0);
+              tctx.drawImage(oc2, 0, 0);
+            } else {
+              tctx.globalAlpha = 0.55;
+              tctx.drawImage(
+                s.bgImg,
+                -((sw - 60) * s.imgOffsetX),
+                -((sh - 60) * s.imgOffsetY),
+                sw,
+                sh,
+              );
+              tctx.globalAlpha = 1;
+            }
           }
           tctx.fillStyle = accentColor;
           tctx.font = "bold 14px sans-serif";
@@ -2121,97 +3547,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         switchSlide(next);
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  NEW: CAPTION GENERATOR
-      // ═══════════════════════════════════════════════════════════════
-      function setCapTone(t, el) {
-        capTone = t;
-        ["cap-tiktok", "cap-ig", "cap-twitter"].forEach((id) =>
-          document.getElementById(id).classList.remove("on"),
-        );
-        el.classList.add("on");
-      }
-
-      const MH_HASHTAGS = [
-        "#MentalHealth",
-        "#MentalHealthAwareness",
-        "#Psychology",
-        "#SelfCare",
-        "#Mindset",
-        "#MentalHealthMatters",
-        "#Therapy",
-        "#WellBeing",
-        "#EmotionalHealth",
-        "#Mentel",
-        "#MentalHealthTips",
-        "#PersonalityTypes",
-        "#MindfulLiving",
-        "#SelfAwareness",
-        "#InnerPeace",
-        "#HealingJourney",
-        "#BreakTheStigma",
-        "#MentalHealthAdvocate",
-      ];
-
-      function generateCaption() {
-        const headline = document.getElementById("txt").value.trim();
-        const tag = document.getElementById("tag").value.trim();
-        const cta = getCTAText();
-        const handle = PLATFORM_META[platform].handle;
-        const handleStr =
-          platform !== "none" && handle ? `@${handle}` : "Mentel";
-
-        // Pick 8-10 hashtags
-        const shuffled = [...MH_HASHTAGS].sort(() => Math.random() - 0.5);
-        const tags = shuffled.slice(0, 9).join(" ");
-
-        let caption = "";
-
-        if (capTone === "tiktok") {
-          caption = `${headline}\n\n${tag ? `${tag} | ` : ""}Are you an Otrovert? 🧠 Drop a ✅ in the comments if this sounds like you!\n\n${cta ? `👉 ${cta}\n\n` : ""}${handleStr} · Mental health facts you need to know\n\n${tags}`;
-        } else if (capTone === "ig") {
-          caption = `💭 ${headline}\n\n${tag ? `[${tag}]\n\n` : ""}This concept is changing how psychiatrists understand personality. Save this post to share with someone who needs to hear it.\n\n${cta ? `→ ${cta}\n\n` : ""}Follow ${handleStr} for more mental health insights.\n\n.\n.\n.\n${tags}`;
-        } else {
-          // twitter — short
-          const short =
-            headline.length > 200 ? headline.slice(0, 197) + "…" : headline;
-          caption = `${short}\n\n${cta ? `${cta}\n` : ""}${tags.split(" ").slice(0, 5).join(" ")}`;
-        }
-
-        document.getElementById("caption-output").style.display = "";
-        document.getElementById("caption-text").textContent = caption;
-        document.getElementById("copy-btn").classList.remove("copied");
-        document.getElementById("copy-btn").textContent = "📋 Copy";
-      }
-
-      function copyCaption() {
-        const txt = document.getElementById("caption-text").textContent;
-        navigator.clipboard
-          .writeText(txt)
-          .then(() => {
-            const btn = document.getElementById("copy-btn");
-            btn.textContent = "✅ Copied!";
-            btn.classList.add("copied");
-            setTimeout(() => {
-              btn.textContent = "📋 Copy";
-              btn.classList.remove("copied");
-            }, 2000);
-          })
-          .catch(() => {
-            // fallback
-            const ta = document.createElement("textarea");
-            ta.value = txt;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            document.body.removeChild(ta);
-            document.getElementById("copy-btn").textContent = "✅ Copied!";
-          });
-      }
-
-      // ═══════════════════════════════════════════════════════════════
-      //  NEW: PRESETS (localStorage)
-      // ═══════════════════════════════════════════════════════════════
+      // ── PRESETS ─────────────────────────────────────────────────────
       function getPresetData() {
         return {
           accentColor,
@@ -2242,85 +3578,71 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function applyPresetData(d) {
         if (!d) return;
-        // Colors
         if (d.accentColor) {
           accentColor = d.accentColor;
           document.documentElement.style.setProperty("--accent", accentColor);
           document
             .querySelectorAll(".swatch")
             .forEach((s) => s.classList.remove("on"));
+          document.getElementById("txt-swatch-accent").style.background =
+            accentColor;
         }
         if (d.textColor) {
-          textColor = d.textColor;
-        }
-        if (d.bgType) {
-          bgType = d.bgType;
+          textColor = d.textColor === "accent" ? accentColor : d.textColor;
           document
-            .getElementById("bg-solid")
-            .classList.toggle("on", bgType === "solid");
-          document
-            .getElementById("bg-gradient")
-            .classList.toggle("on", bgType === "gradient");
-          document.getElementById("bg-solid-row").style.display =
-            bgType === "solid" ? "" : "none";
-          document.getElementById("bg-gradient-row").style.display =
-            bgType === "gradient" ? "" : "none";
+            .querySelectorAll(".txt-swatch")
+            .forEach((s) => s.classList.remove("on"));
         }
-        if (d.gradDir) {
-          gradDir = d.gradDir;
-          ["grad-tb", "grad-diag", "grad-radial"].forEach((id) =>
-            document.getElementById(id).classList.remove("on"),
+        if (d.bgType)
+          setBgType(d.bgType, document.getElementById(`bg-${d.bgType}`));
+        if (d.gradDir)
+          setGradDir(
+            d.gradDir,
+            document.getElementById(
+              { tb: "grad-tb", diag: "grad-diag", radial: "grad-radial" }[
+                d.gradDir
+              ] || "grad-tb",
+            ),
           );
-          const gmap = {
-            tb: "grad-tb",
-            diag: "grad-diag",
-            radial: "grad-radial",
-          };
-          if (gmap[gradDir])
-            document.getElementById(gmap[gradDir]).classList.add("on");
-        }
         if (d.bgSolidColor)
           document.getElementById("bg-solid-color").value = d.bgSolidColor;
         if (d.bgGradFrom)
           document.getElementById("bg-grad-from").value = d.bgGradFrom;
         if (d.bgGradTo)
           document.getElementById("bg-grad-to").value = d.bgGradTo;
-        if (d.fs)
-          ((document.getElementById("fs").value = d.fs),
-            (document.getElementById("fsval").textContent = d.fs));
-        if (d.darkness)
-          ((document.getElementById("darkness").value = d.darkness),
-            (document.getElementById("darkval").textContent = d.darkness));
-        if (d.ttBoost)
-          ((document.getElementById("tt-boost").value = d.ttBoost),
-            (document.getElementById("tt-boost-val").textContent = d.ttBoost));
+        if (d.fs) {
+          document.getElementById("fs").value = d.fs;
+          document.getElementById("fsval").textContent = d.fs;
+        }
+        if (d.darkness) {
+          document.getElementById("darkness").value = d.darkness;
+          document.getElementById("darkval").textContent = d.darkness;
+        }
+        if (d.ttBoost) {
+          document.getElementById("tt-boost").value = d.ttBoost;
+          document.getElementById("tt-boost-val").textContent = d.ttBoost;
+        }
         if (d.ttMode) setTTMode(d.ttMode);
-        if (d.textAlign) {
-          textAlign = d.textAlign;
-          ["align-left", "align-center", "align-right"].forEach((id) =>
-            document.getElementById(id).classList.remove("on"),
+        if (d.textAlign)
+          setAlign(
+            d.textAlign,
+            document.getElementById(
+              {
+                left: "align-left",
+                center: "align-center",
+                right: "align-right",
+              }[d.textAlign] || "align-left",
+            ),
           );
-          const map = {
-            left: "align-left",
-            center: "align-center",
-            right: "align-right",
-          };
-          if (map[textAlign])
-            document.getElementById(map[textAlign]).classList.add("on");
-        }
-        if (d.textVPos) {
-          textVPos = d.textVPos;
-          ["vpos-top", "vpos-middle", "vpos-bottom"].forEach((id) =>
-            document.getElementById(id).classList.remove("on"),
+        if (d.textVPos)
+          setVPos(
+            d.textVPos,
+            document.getElementById(
+              { top: "vpos-top", middle: "vpos-middle", bottom: "vpos-bottom" }[
+                d.textVPos
+              ] || "vpos-middle",
+            ),
           );
-          const map = {
-            top: "vpos-top",
-            middle: "vpos-middle",
-            bottom: "vpos-bottom",
-          };
-          if (map[textVPos])
-            document.getElementById(map[textVPos]).classList.add("on");
-        }
         if (d.brandName)
           document.getElementById("brandname").value = d.brandName;
         if (d.tag) document.getElementById("tag").value = d.tag;
@@ -2330,20 +3652,25 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           document.getElementById("cta-assess-txt").value = d.ctaAssessTxt;
         if (d.ctaWebsiteTxt)
           document.getElementById("cta-website-txt").value = d.ctaWebsiteTxt;
-        if (d.slideNumStyle) {
-          slideNumStyle = d.slideNumStyle;
-          ["sn-dots", "sn-text", "sn-label", "sn-none"].forEach((id) =>
-            document.getElementById(id).classList.remove("on"),
+        if (d.slideNumStyle)
+          setSlideNumStyle(
+            d.slideNumStyle,
+            document.getElementById(
+              {
+                dots: "sn-dots",
+                text: "sn-text",
+                label: "sn-label",
+                none: "sn-none",
+              }[d.slideNumStyle] || "sn-dots",
+            ),
           );
-          const map = {
-            dots: "sn-dots",
-            text: "sn-text",
-            label: "sn-label",
-            none: "sn-none",
-          };
-          if (map[slideNumStyle])
-            document.getElementById(map[slideNumStyle]).classList.add("on");
-        }
+        if (d.slideNumPos)
+          setSlideNumPos(
+            d.slideNumPos,
+            document.getElementById(
+              d.slideNumPos === "top" ? "snpos-top" : "snpos-bottom",
+            ),
+          );
         if (d.handles) {
           Object.keys(d.handles).forEach((k) => {
             if (PLATFORM_META[k]) PLATFORM_META[k].handle = d.handles[k].handle;
@@ -2356,11 +3683,12 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
             .forEach((b) => b.classList.remove("on"));
           const pb = document.getElementById(`plat-${platform}`);
           if (pb) pb.classList.add("on");
-          const m = PLATFORM_META[platform];
-          document.getElementById("handle-prefix-badge").textContent = m.prefix;
+          const pm = PLATFORM_META[platform];
+          document.getElementById("handle-prefix-badge").textContent =
+            pm.prefix;
           document.getElementById("handle-plat-lbl").textContent =
-            m.label || "—";
-          document.getElementById("handle").value = m.handle;
+            pm.label || "—";
+          document.getElementById("handle").value = pm.handle;
           updateHandleNote();
         }
         if (d.ctaType) {
@@ -2379,40 +3707,30 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function savePreset() {
         const name = document.getElementById("preset-name").value.trim();
+        const statusEl = document.getElementById("preset-status");
         if (!name) {
-          document.getElementById("preset-status").textContent =
-            "Enter a name first.";
+          statusEl.textContent = "Enter a name first.";
           return;
         }
         const data = getPresetData();
         data.name = name;
-        let presets = JSON.parse(
-          localStorage.getItem("mentel_presets") || "[]",
-        );
+        let presets = JSON.parse(lsGet("mentel_presets") || "[]");
         presets.unshift(data);
         if (presets.length > 20) presets = presets.slice(0, 20);
-        localStorage.setItem("mentel_presets", JSON.stringify(presets));
+        lsSet("mentel_presets", JSON.stringify(presets));
         document.getElementById("preset-name").value = "";
-        document.getElementById("preset-status").textContent =
-          `✅ "${name}" saved!`;
-        setTimeout(
-          () => (document.getElementById("preset-status").textContent = ""),
-          2500,
-        );
+        statusEl.textContent = `✅ "${name}" saved!`;
+        setTimeout(() => (statusEl.textContent = ""), 2500);
         renderPresetList();
       }
       function deletePreset(idx) {
-        let presets = JSON.parse(
-          localStorage.getItem("mentel_presets") || "[]",
-        );
+        let presets = JSON.parse(lsGet("mentel_presets") || "[]");
         presets.splice(idx, 1);
-        localStorage.setItem("mentel_presets", JSON.stringify(presets));
+        lsSet("mentel_presets", JSON.stringify(presets));
         renderPresetList();
       }
       function renderPresetList() {
-        const presets = JSON.parse(
-          localStorage.getItem("mentel_presets") || "[]",
-        );
+        const presets = JSON.parse(lsGet("mentel_presets") || "[]");
         const el = document.getElementById("preset-list");
         el.innerHTML = "";
         if (!presets.length) {
@@ -2424,12 +3742,9 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           row.className = "preset-item";
           row.onclick = () => {
             applyPresetData(p);
-            document.getElementById("preset-status").textContent =
-              `✅ "${p.name}" loaded!`;
-            setTimeout(
-              () => (document.getElementById("preset-status").textContent = ""),
-              2000,
-            );
+            const s = document.getElementById("preset-status");
+            s.textContent = `✅ "${p.name}" loaded!`;
+            setTimeout(() => (s.textContent = ""), 2000);
           };
           const dot = document.createElement("div");
           dot.style.cssText = `width:10px;height:10px;border-radius:50%;background:${p.accentColor || "#2fbf71"};flex-shrink:0`;
@@ -2451,28 +3766,40 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         });
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  NEW: CUSTOM SIZE
-      // ═══════════════════════════════════════════════════════════════
+      // ── CUSTOM SIZE ─────────────────────────────────────────────────
       function setCustomSize(w, h) {
         document.getElementById("custom-w").value = w;
         document.getElementById("custom-h").value = h;
       }
       function applyCustomSize() {
-        const w = parseInt(document.getElementById("custom-w").value) || 1080;
-        const h = parseInt(document.getElementById("custom-h").value) || 1080;
+        const w = Math.max(
+          100,
+          Math.min(
+            4096,
+            parseInt(document.getElementById("custom-w").value) || 1080,
+          ),
+        );
+        const h = Math.max(
+          100,
+          Math.min(
+            4096,
+            parseInt(document.getElementById("custom-h").value) || 1080,
+          ),
+        );
+        document.getElementById("custom-w").value = w;
+        document.getElementById("custom-h").value = h;
         PRESETS_MAP["custom"] = { w, h, label: `${w}×${h} · Custom` };
-        document.getElementById("tab-custom").style.display = "";
-        document.getElementById("exp-custom").style.display = "";
-        document.getElementById("exp-custom").dataset.w = w;
-        document.getElementById("exp-custom").dataset.h = h;
+        const tab = document.getElementById("tab-custom");
+        const expItem = document.getElementById("exp-custom");
+        tab.style.display = "";
+        expItem.style.display = "";
+        expItem.dataset.w = w;
+        expItem.dataset.h = h;
         document.getElementById("exp-custom-size").textContent = `${w}×${h}`;
-        switchPreview("custom", document.getElementById("tab-custom"));
+        switchPreview("custom", tab);
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  NEW: STYLE CONTROLS
-      // ═══════════════════════════════════════════════════════════════
+      // ── STYLE CONTROLS ─────────────────────────────────────────────
       function setTextColor(c, el) {
         textColor = c === "accent" ? accentColor : c;
         document
@@ -2483,6 +3810,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function setBgType(t, el) {
         bgType = t;
+        if (!el) return;
         document
           .getElementById("bg-solid")
           .classList.toggle("on", t === "solid");
@@ -2497,6 +3825,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function setGradDir(d, el) {
         gradDir = d;
+        if (!el) return;
         ["grad-tb", "grad-diag", "grad-radial"].forEach((id) =>
           document.getElementById(id).classList.remove("on"),
         );
@@ -2505,6 +3834,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function setSlideNumStyle(s, el) {
         slideNumStyle = s;
+        if (!el) return;
         ["sn-dots", "sn-text", "sn-label", "sn-none"].forEach((id) =>
           document.getElementById(id).classList.remove("on"),
         );
@@ -2513,6 +3843,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       }
       function setSlideNumPos(p, el) {
         slideNumPos = p;
+        if (!el) return;
         ["snpos-bottom", "snpos-top"].forEach((id) =>
           document.getElementById(id).classList.remove("on"),
         );
@@ -2520,9 +3851,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         redraw();
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  CONTROLS (existing)
-      // ═══════════════════════════════════════════════════════════════
+      // ── CORE CONTROLS ──────────────────────────────────────────────
       function setPostMode(mode) {
         postMode = mode;
         document
@@ -2544,6 +3873,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         redraw();
       }
 
+      // Drag to reposition
       let isDragging = false,
         dragStartX,
         dragStartY,
@@ -2663,7 +3993,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         ["align-left", "align-center", "align-right"].forEach((id) =>
           document.getElementById(id).classList.remove("on"),
         );
-        el.classList.add("on");
+        if (el) el.classList.add("on");
         redraw();
       }
       function setVPos(v, el) {
@@ -2671,7 +4001,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         ["vpos-top", "vpos-middle", "vpos-bottom"].forEach((id) =>
           document.getElementById(id).classList.remove("on"),
         );
-        el.classList.add("on");
+        if (el) el.classList.add("on");
         redraw();
       }
       function setCTAType(type, el) {
@@ -2745,6 +4075,31 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
       function toggleSec(id) {
         document.getElementById(id).classList.toggle("collapsed");
       }
+      function setAccent(c, el) {
+        accentColor = c;
+        document
+          .querySelectorAll(".swatch")
+          .forEach((s) => s.classList.remove("on"));
+        el.classList.add("on");
+        document.documentElement.style.setProperty("--accent", c);
+        document.getElementById("txt-swatch-accent").style.background = c;
+        redraw();
+      }
+      function setFmt(f, el) {
+        fmt = f;
+        ["fmt-png", "fmt-jpeg", "fmt-webp"].forEach((id) =>
+          document.getElementById(id).classList.remove("on"),
+        );
+        el.classList.add("on");
+      }
+      function switchPreview(key, el) {
+        currentPreset = key;
+        document
+          .querySelectorAll(".size-tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        redraw();
+      }
       function loadBg(e) {
         const f = e.target.files[0];
         if (!f) return;
@@ -2792,38 +4147,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         document.getElementById("logo-size-row").style.display = "none";
         redraw();
       }
-      function setAccent(c, el) {
-        accentColor = c;
-        document
-          .querySelectorAll(".swatch")
-          .forEach((s) => s.classList.remove("on"));
-        el.classList.add("on");
-        document.documentElement.style.setProperty("--accent", c);
-        // update accent swatch in text color row
-        document.getElementById("txt-swatch-accent").style.background = c;
-        // if textColor was accent, update it
-        if (textColor === accentColor || textColor === "accent") textColor = c;
-        redraw();
-      }
-      function setFmt(f, el) {
-        fmt = f;
-        ["fmt-png", "fmt-jpeg", "fmt-webp"].forEach((id) =>
-          document.getElementById(id).classList.remove("on"),
-        );
-        el.classList.add("on");
-      }
-      function switchPreview(key, el) {
-        currentPreset = key;
-        document
-          .querySelectorAll(".size-tab")
-          .forEach((t) => t.classList.remove("active"));
-        el.classList.add("active");
-        redraw();
-      }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  DRAW ENGINE
-      // ═══════════════════════════════════════════════════════════════
+      // ── DRAW ───────────────────────────────────────────────────────
       function drawCard(canvas, W, H, isTikTok, slideData) {
         const ctx = canvas.getContext("2d");
         canvas.width = W;
@@ -2850,9 +4175,12 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         const gradFrom = document.getElementById("bg-grad-from").value;
         const gradTo = document.getElementById("bg-grad-to").value;
         const fS = W / 1080;
-        const resolvedTextColor = textColor;
+        const resolvedTextColor =
+          textColor === "accent" || textColor === undefined
+            ? accentColor
+            : textColor;
 
-        // 1. Background (solid/gradient/photo)
+        // 1. Background
         if (!s.bgImg) {
           if (bgType === "gradient") {
             let grd;
@@ -2885,17 +4213,36 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
             sh = s.bgImg.height * scale;
           const dx = -((sw - W) * s.imgOffsetX),
             dy = -((sh - H) * s.imgOffsetY);
-          ctx.save();
-          ctx.filter =
-            isTikTok && ttMode === "fullscreen"
-              ? "none"
-              : `grayscale(100%) brightness(${0.88 - darkness * 0.28}) contrast(1.12)`;
-          ctx.drawImage(s.bgImg, dx, dy, sw, sh);
-          ctx.restore();
+          const wantBW = photoColorMode === "bw";
+          const isFullscreen = isTikTok && ttMode === "fullscreen";
+          if (!isFullscreen && wantBW) {
+            // iOS Safari-safe manual grayscale: draw to offscreen, manipulate pixels
+            const oc = document.createElement("canvas");
+            oc.width = W;
+            oc.height = H;
+            const octx = oc.getContext("2d");
+            octx.drawImage(s.bgImg, dx, dy, sw, sh);
+            const imgd = octx.getImageData(0, 0, W, H);
+            const d = imgd.data;
+            const bri = 0.88 - darkness * 0.28;
+            for (let i = 0; i < d.length; i += 4) {
+              // Luminosity grayscale
+              let g = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+              // Brightness + contrast (contrast 1.12)
+              g = ((g / 255 - 0.5) * 1.12 + 0.5) * 255 * bri;
+              g = Math.max(0, Math.min(255, g));
+              d[i] = d[i + 1] = d[i + 2] = g;
+            }
+            octx.putImageData(imgd, 0, 0);
+            ctx.drawImage(oc, 0, 0);
+          } else {
+            // Color mode or fullscreen — just draw normally, no filter
+            ctx.drawImage(s.bgImg, dx, dy, sw, sh);
+          }
         }
         if (isTikTok && ttMode === "fullscreen") return;
 
-        // 2. Gradient overlay (only with photo)
+        // 2. Gradient overlay (photo only)
         if (s.bgImg) {
           const grad = ctx.createLinearGradient(0, H * 0.06, 0, H);
           grad.addColorStop(0, "rgba(0,0,0,0)");
@@ -2914,17 +4261,17 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           }
         }
 
-        // 3. Sizes & layout
-        const padH = W * 0.07;
-        const usableW = W - padH * 2;
-        const headFS = Math.round(fs * fS);
-        const tagFS = Math.round(17 * fS);
-        const ctaFS = Math.round(19 * fS);
-        const brandFS = Math.round(19 * fS);
-        const handleFS = Math.round(18 * fS);
-        const platFS = Math.round(11 * fS);
-        const dotR = Math.round(5 * fS);
-        const lineH = headFS * 1.15;
+        // 3. Layout
+        const padH = W * 0.07,
+          usableW = W - padH * 2;
+        const headFS = Math.round(fs * fS),
+          tagFS = Math.round(17 * fS),
+          ctaFS = Math.round(19 * fS);
+        const brandFS = Math.round(19 * fS),
+          handleFS = Math.round(18 * fS),
+          platFS = Math.round(11 * fS);
+        const dotR = Math.round(5 * fS),
+          lineH = headFS * 1.15;
 
         let textX, ctxAlign;
         if (textAlign === "left") {
@@ -2940,7 +4287,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           ctxAlign = "right";
         }
 
-        // Word-wrap
         ctx.font = `900 ${headFS}px Montserrat, Arial Black, sans-serif`;
         const words = headline.split(" ");
         const lines = [];
@@ -2961,10 +4307,10 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         const brandRowH = logoImg
           ? logoH + Math.round(8 * fS)
           : Math.round(34 * fS);
-        const gapBT = Math.round(12 * fS);
-        const gapTH = Math.round(10 * fS);
-        const gapHC = Math.round(36 * fS);
-        const gapCHn = Math.round(18 * fS);
+        const gapBT = Math.round(12 * fS),
+          gapTH = Math.round(10 * fS);
+        const gapHC = Math.round(36 * fS),
+          gapCHn = Math.round(18 * fS);
         const edgePad = Math.round(64 * fS);
         const tagRowH = tag ? tagFS + gapTH : 0;
         const headBlockH = lines.length * lineH;
@@ -2982,7 +4328,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         blockTop = Math.max(edgePad * 0.4, blockTop);
         let y = blockTop;
 
-        // 4. Brand row
+        // Brand row
         const brandMidY = y + brandRowH / 2;
         if (logoImg) {
           const lgap = Math.round(12 * fS);
@@ -3007,11 +4353,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         } else {
           ctx.font = `700 ${brandFS}px Montserrat, Arial Black, sans-serif`;
           const bTxtW =
-            ctx.measureText(
-              document.getElementById("brandname").value.toUpperCase(),
-            ).width +
-            dotR * 2 +
-            Math.round(8 * fS);
+            ctx.measureText(brandName).width + dotR * 2 + Math.round(8 * fS);
           const lgap = Math.round(10 * fS);
           const lineLen = Math.max(0, (usableW - bTxtW - lgap * 2) / 2);
           ctx.strokeStyle = "rgba(255,255,255,0.18)";
@@ -3040,7 +4382,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         }
         y += brandRowH + gapBT;
 
-        // 5. Tag
+        // Tag
         if (tag) {
           ctx.font = `700 ${tagFS}px Inter, Arial, sans-serif`;
           ctx.fillStyle = accentColor;
@@ -3049,7 +4391,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           y += tagRowH;
         }
 
-        // 6. Headline (user-selected color)
+        // Headline
         ctx.font = `900 ${headFS}px Montserrat, Arial Black, sans-serif`;
         ctx.fillStyle = resolvedTextColor;
         ctx.textAlign = ctxAlign;
@@ -3060,7 +4402,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         ctx.shadowBlur = 0;
         y += headBlockH;
 
-        // 7. CTA
+        // CTA
         if (cta) {
           y += gapHC;
           ctx.font = `500 ${ctaFS}px Inter, Arial, sans-serif`;
@@ -3070,7 +4412,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           y += ctaH;
         }
 
-        // 8. Handle
+        // Handle
         if (handleStr) {
           y += gapCHn;
           ctx.font = `700 ${platFS}px Inter, Arial, sans-serif`;
@@ -3083,10 +4425,9 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           ctx.fillStyle = accentColor;
           ctx.textAlign = ctxAlign;
           ctx.fillText(handleStr, textX, y + handleFS);
-          y += handleFS;
         }
 
-        // 9. Slide indicator (NEW: multiple styles)
+        // Slide indicator
         if (
           postMode === "carousel" &&
           slides.length > 1 &&
@@ -3094,7 +4435,6 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         ) {
           const si = slides.indexOf(s);
           const isTop = slideNumPos === "top";
-
           if (slideNumStyle === "dots") {
             const dd = Math.round(8 * fS),
               dg = Math.round(6 * fS);
@@ -3115,29 +4455,24 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
             });
           } else if (slideNumStyle === "text") {
             const numFS = Math.round(20 * fS);
-            const numTxt = `${si + 1}/${slides.length}`;
             const numY = isTop ? Math.round(40 * fS) : H - Math.round(20 * fS);
             ctx.font = `700 ${numFS}px Montserrat, Arial Black, sans-serif`;
             ctx.fillStyle = "rgba(255,255,255,0.7)";
             ctx.textAlign = "right";
-            ctx.fillText(numTxt, W - padH, numY);
+            ctx.fillText(`${si + 1}/${slides.length}`, W - padH, numY);
           } else if (slideNumStyle === "label") {
             const numFS = Math.round(18 * fS);
-            const numTxt = `Slide ${si + 1} of ${slides.length}`;
             const numY = isTop ? Math.round(40 * fS) : H - Math.round(20 * fS);
             ctx.font = `700 ${numFS}px Inter, Arial, sans-serif`;
             ctx.fillStyle = accentColor;
             ctx.textAlign = "right";
-            ctx.fillText(numTxt, W - padH, numY);
+            ctx.fillText(`Slide ${si + 1} of ${slides.length}`, W - padH, numY);
           }
         }
-
         ctx.textAlign = "left";
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  PREVIEW
-      // ═══════════════════════════════════════════════════════════════
+      // ── PREVIEW ────────────────────────────────────────────────────
       function redraw() {
         const preset = PRESETS_MAP[currentPreset];
         const isTT =
@@ -3157,9 +4492,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         updateSlideNav();
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  EXPORT
-      // ═══════════════════════════════════════════════════════════════
+      // ── EXPORT (original) ──────────────────────────────────────────
       async function exportAll() {
         slides[currentSlide].headline = document.getElementById("txt").value;
         const selected = [...document.querySelectorAll(".exp-item.on")];
@@ -3182,46 +4515,50 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         const slidesToExport = postMode === "carousel" ? slides : [getSlide()];
         const total = selected.length * slidesToExport.length;
         let done = 0;
-        for (const item of selected) {
-          const W = parseInt(item.dataset.w),
-            H = parseInt(item.dataset.h),
-            lbl = item.dataset.lbl;
-          const isTT = lbl.startsWith("TikTok");
-          for (let si = 0; si < slidesToExport.length; si++) {
-            const sfx = postMode === "carousel" ? `_slide${si + 1}` : "";
-            document.getElementById("statusmsg").textContent =
-              `Rendering ${lbl}${sfx}… (${done + 1}/${total})`;
-            pf.style.width = (done / total) * 85 + "%";
-            await new Promise((r) => setTimeout(r, 30));
-            const off = document.createElement("canvas");
-            drawCard(off, W, H, isTT, slidesToExport[si]);
-            const dataUrl = off.toDataURL(
-              mimeMap[fmt],
-              fmt === "png" ? 1.0 : 0.93,
-            );
-            const a = document.createElement("a");
-            a.href = dataUrl;
-            a.download = `mentel_${lbl}${sfx}_${W}x${H}.${extMap[fmt]}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            await new Promise((r) => setTimeout(r, 260));
-            done++;
+        try {
+          for (const item of selected) {
+            const W = parseInt(item.dataset.w),
+              H = parseInt(item.dataset.h),
+              lbl = item.dataset.lbl;
+            const isTT = lbl.startsWith("TikTok");
+            for (let si = 0; si < slidesToExport.length; si++) {
+              const sfx = postMode === "carousel" ? `_slide${si + 1}` : "";
+              document.getElementById("statusmsg").textContent =
+                `Rendering ${lbl}${sfx}… (${done + 1}/${total})`;
+              pf.style.width = (done / total) * 85 + "%";
+              await new Promise((r) => setTimeout(r, 30));
+              const off = document.createElement("canvas");
+              drawCard(off, W, H, isTT, slidesToExport[si]);
+              const dataUrl = off.toDataURL(
+                mimeMap[fmt],
+                fmt === "png" ? 1.0 : 0.93,
+              );
+              const a = document.createElement("a");
+              a.href = dataUrl;
+              a.download = `mentel_${lbl}${sfx}_${W}x${H}.${extMap[fmt]}`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              await new Promise((r) => setTimeout(r, 260));
+              done++;
+            }
           }
+          document.getElementById("statusmsg").textContent =
+            `✅ ${done} file${done > 1 ? "s" : ""} downloaded!`;
+        } catch (err) {
+          document.getElementById("statusmsg").textContent =
+            "⚠ Export error. Try fewer sizes.";
+        } finally {
+          pf.style.width = "100%";
+          setTimeout(() => {
+            pw.style.display = "none";
+            pf.style.width = "0%";
+          }, 700);
+          btn.disabled = false;
         }
-        pf.style.width = "100%";
-        setTimeout(() => {
-          pw.style.display = "none";
-          pf.style.width = "0%";
-        }, 700);
-        document.getElementById("statusmsg").textContent =
-          `✅ ${done} file${done > 1 ? "s" : ""} downloaded!`;
-        btn.disabled = false;
       }
 
-      // ═══════════════════════════════════════════════════════════════
-      //  INIT
-      // ═══════════════════════════════════════════════════════════════
+      // ── INIT ───────────────────────────────────────────────────────
       window.addEventListener("load", () => {
         initDrag();
         [
@@ -3240,6 +4577,8 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
           .addEventListener("input", onHandleChange);
         renderPresetList();
         document.fonts.ready.then(() => redraw());
+        // Init publish caption preview
+        pubGenerateCaption();
       });
       window.addEventListener("resize", () => redraw());
     </script>
