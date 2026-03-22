@@ -2832,6 +2832,7 @@ Psychiatrists are starting to talk about a personality type called the "Otrovert
         const ctx = canvas.getContext("2d");
         canvas.width = W;
         canvas.height = H;
+        ctx.clearRect(0, 0, W, H);  // just added this
         const s = slideData;
         const fs = parseInt(document.getElementById("fs").value);
         const darkness =
